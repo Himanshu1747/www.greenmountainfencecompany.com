@@ -43,10 +43,13 @@ query Aboutpage {
 
 const pagedata = await queryWordPress(QUERY_ABOUT);
 
-// Fail-safe data handling to prevent build errors
 const finaldata = pagedata?.page || {};
 const seodata = finaldata?.seo || {};
 const aboutUs = finaldata?.aboutUs || {};
+
+// Optimized URLs for preloading
+const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
+const videoPosterUrl = aboutUs?.videoPoster?.node?.mediaItemUrl;
 ---
 
 <!doctype html>
@@ -58,23 +61,26 @@ const aboutUs = finaldata?.aboutUs || {};
             focuskw={seodata?.focuskw || ""}
         />
         {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
+        {bannerUrl && (
+            <link rel="preload" as="image" href={bannerUrl} fetchpriority="high" />
+        )}
+        {videoPosterUrl && (
+            <link rel="preload" as="image" href={videoPosterUrl} fetchpriority="low" />
+        )}
     </head>
     <body>
         <Header />
 
         <section class="innerbanner-sec">
-            {/* SPEED OPTIMIZATION: 
-               The banner is likely the LCP element. 
-               We use loading="eager" and fetchpriority="high".
-            */}
             <img
-                src={finaldata?.featuredImage?.node?.mediaItemUrl || ""}
+                src={bannerUrl || ""}
                 alt={finaldata?.featuredImage?.node?.altText || finaldata?.title || ""}
                 title={finaldata?.title || ""}
                 width="1920"
                 height="532"
                 loading="eager"
                 fetchpriority="high"
+                decoding="sync"
                 class="banner-image"
             />
             <div class="container">
@@ -101,7 +107,7 @@ const aboutUs = finaldata?.aboutUs || {};
                         <div class="aboutvideo">
                             <video
                                 src={aboutUs?.video?.node?.mediaItemUrl || ""}
-                                poster={aboutUs?.videoPoster?.node?.mediaItemUrl || ""}
+                                poster={videoPosterUrl || ""}
                                 width="671"
                                 height="459"
                                 controls

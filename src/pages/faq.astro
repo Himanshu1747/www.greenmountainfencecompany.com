@@ -44,10 +44,6 @@ query faqpage {
 }
 `;
 
-/** * SPEED OPTIMIZATION: 
- * We fetch both datasets simultaneously using Promise.all 
- * instead of waiting for one to finish before starting the next.
- */
 const [dataget, datapage] = await Promise.all([
   queryWordPress(FAQ_DATA),
   queryWordPress(FAQPAGE_QUERY)
@@ -56,6 +52,7 @@ const [dataget, datapage] = await Promise.all([
 const faqNodes = dataget?.faqs?.nodes ? [...dataget.faqs.nodes].reverse() : []; 
 const pageData = datapage?.page || {};
 const seodata = pageData?.seo || {};
+const bannerUrl = pageData?.featuredImage?.node?.mediaItemUrl;
 ---
 
 <!doctype html>
@@ -67,18 +64,22 @@ const seodata = pageData?.seo || {};
             focuskw={seodata?.focuskw || ""}
         />
         {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
+        {bannerUrl && (
+            <link rel="preload" as="image" href={bannerUrl} fetchpriority="high" />
+        )}
     </head>
     <body>
         <Header />
 
         <section class="innerbanner-sec">
             <img
-                src={pageData?.featuredImage?.node?.mediaItemUrl || "/fallback.jpg"}
+                src={bannerUrl || "/fallback.jpg"}
                 alt={pageData?.featuredImage?.node?.altText || pageData?.title || "FAQ"}
                 width="1920"
                 height="532"
                 loading="eager" 
                 fetchpriority="high"
+                decoding="sync"
                 class="banner-image"
             />
             <div class="container">

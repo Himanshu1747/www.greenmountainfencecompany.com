@@ -42,7 +42,8 @@ a {
 
 p,
 .about-profesional li,
-.bootm-data li,   .post-content li {
+.bootm-data li,
+.post-content li {
     font-size: 20px;
     font-style: normal;
     font-weight: 400;
@@ -192,9 +193,12 @@ textarea:focus-visible {
     transition: 0.3s ease-in;
     border-radius: 51px;
 }
-.bootm-data ol, .bootm-data ul {
+
+.bootm-data ol,
+.bootm-data ul {
     margin: 0 !important;
 }
+
 .full-button img {
     display: block;
     max-width: fit-content;
@@ -534,9 +538,10 @@ section.innerbanner-sec {
     list-style: auto;
 }
 
-.post-content li{
+.post-content li {
     padding-bottom: 5px;
 }
+
 ul.sub-menu li a {
     text-decoration: none !important;
 }
@@ -555,7 +560,7 @@ ul.sub-menu li a {
         --lh-32: 32px;
         --fs-60: 50px;
         --lh-70: 58px;
-            --fs-40: 35px;
+        --fs-40: 35px;
     }
 
     .fs-80 {
@@ -570,7 +575,8 @@ ul.sub-menu li a {
 
     p,
     .about-profesional li,
-    .bootm-data li,.post-content li {
+    .bootm-data li,
+    .post-content li {
         font-size: 18px;
         line-height: 28px;
     }
@@ -606,7 +612,8 @@ ul.sub-menu li a {
 
     p,
     .about-profesional li,
-    .bootm-data li,.post-content li{
+    .bootm-data li,
+    .post-content li {
         font-size: 16px;
         line-height: 26px;
     }
@@ -675,17 +682,21 @@ ul.sub-menu li a {
     }
 
     .main-ima {
-    height: 250px;
-}
-.bootm-data p, .read-button a {
-    font-size: 15px;
-}
-.fs-20 {
-    font-size: 18px;
-}
-.bootm-data {
-    padding-top: 10px;
-}
+        height: 250px;
+    }
+
+    .bootm-data p,
+    .read-button a {
+        font-size: 15px;
+    }
+
+    .fs-20 {
+        font-size: 18px;
+    }
+
+    .bootm-data {
+        padding-top: 10px;
+    }
 }
 
 @media(max-width:1199px) {
@@ -723,7 +734,7 @@ ul.sub-menu li a {
         --fs-60: 28px;
         --lh-70: 37px;
         --fs-25: 18px;
-                --fs-40: 25px;
+        --fs-40: 25px;
     }
 
     .fs-100 {
@@ -764,14 +775,19 @@ ul.sub-menu li a {
         padding-bottom: 30px;
         text-align: center;
     }
+
     .blog-grids {
-					grid-template-columns: repeat(2, minmax(0, 1fr));
-					gap: 30px;
-				}
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 30px;
+    }
 }
-@media(max-width:767px){
+
+@media(max-width:767px) {
     .blog-grids {
-					grid-template-columns: repeat(1, minmax(0, 1fr));
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    .blog-holders {
+					max-width: 350px;
 				}
 }
 

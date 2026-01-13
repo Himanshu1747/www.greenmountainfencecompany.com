@@ -25,6 +25,7 @@ query Reviewpage {
 const pagedata = await queryWordPress(REVIEW_DATA);
 const finaldata = pagedata?.page || {};
 const seodata = finaldata?.seo || {};
+const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
 ---
 
 <!doctype html>
@@ -36,19 +37,23 @@ const seodata = finaldata?.seo || {};
             focuskw={seodata?.focuskw || ""}
         />
         {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
+        {bannerUrl && (
+            <link rel="preload" as="image" href={bannerUrl} fetchpriority="high" />
+        )}
     </head>
     <body>
         <Header />
 
         <section class="innerbanner-sec">
-            <img
-                src={finaldata?.featuredImage?.node?.mediaItemUrl || ""}
+           <img
+                src={bannerUrl || ""}
                 alt={finaldata?.featuredImage?.node?.altText || finaldata?.title || ""}
                 title={finaldata?.title || ""}
                 width="1920"
                 height="532"
                 loading="eager"
                 fetchpriority="high"
+                decoding="sync"
                 class="banner-image"
             />
             <div class="container">

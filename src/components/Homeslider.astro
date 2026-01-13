@@ -1,9 +1,6 @@
 ---
 import { queryWordPress } from "../lib/wordpress";
 
-/** * 1. OPTIMIZED GRAPHQL QUERIES
- * Adding 'id' and checking for nodes helps with internal caching.
- */
 const QUERY_HOMESLIDER = `
 query GetHomeSliders {
   homeSliders(first: 5) {
@@ -30,7 +27,7 @@ query Homepage {
 }
 `;
 
-// Fetching data in parallel to save time
+// Fetch data in parallel
 const [datasliders, homdata] = await Promise.all([
     queryWordPress(QUERY_HOMESLIDER),
     queryWordPress(HOMEDATA)
@@ -39,14 +36,17 @@ const [datasliders, homdata] = await Promise.all([
 const nodes = datasliders?.homeSliders?.nodes || [];
 const finaldata = homdata?.page?.homepage;
 
-/** * 2. PRELOAD ALL SLIDER IMAGES
- * This starts the download immediately before the browser even reads the HTML.
- */
+// Extract images for head preloading
 const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(Boolean);
 ---
 
-{imageToPreload.map((url) => (
-    <link rel="preload" as="image" href={url} fetchpriority="high" />
+{imageToPreload.map((url, index) => (
+    <link 
+        rel="preload" 
+        as="image" 
+        href={url} 
+        fetchpriority={index === 0 ? "high" : "low"} 
+    />
 ))}
 
 <section class="homeslider-sec">
@@ -78,10 +78,10 @@ const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(B
                                 <div class="slider-image">
                                     <img
                                         src={imagepath || "/placeholder.jpg"}
-                                        alt=""
+                                        alt="Fence Excellence"
                                         width="1920"
                                         height="929"
-                                        /* Keep these as is for browser priority */
+                                        /* 2. PRIORITY CONTROL: Eager for first, lazy for others */
                                         loading={index === 0 ? "eager" : "lazy"}
                                         fetchpriority={index === 0 ? "high" : "low"}
                                         decoding={index === 0 ? "sync" : "async"}
@@ -97,7 +97,7 @@ const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(B
 </section>
 
 <style>
-    /* ASPECT RATIO: Prevents Layout Shift (CLS) */
+    /* 3. ASPECT RATIO: Prevents Layout Shift (CLS) */
     .slider-image {
         aspect-ratio: 1920 / 929;
         height: auto; 
@@ -135,8 +135,9 @@ const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(B
             0 -2px 0 var(--color-white);
     }
 
+    /* Keep your media queries for responsive heights */
     @media (max-width: 1600px) {
-        .slider-image { height: 697px; }
+        .slider-image { height: 697px; aspect-ratio: auto; }
         .content-main { transform: translate(-0%, -38%); }
     }
     @media (max-width: 1400px) {
@@ -157,18 +158,23 @@ const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(B
         }
     }
 </style>
+
 <script is:inline>
-    // Runs as soon as Swiper is ready
+    // 4. SMART INITIALIZATION
     function initSwiper() {
         if (typeof Swiper !== 'undefined') {
-            new Swiper(".mySwiperhomesliders", {
-                autoplay: { delay: 5000, disableOnInteraction: false },
-                effect: "fade",
-                speed: 1500,
-                loop: true,
-                fadeEffect: { crossFade: true },
-                // Enable Swiper internal lazy loading for even more speed
-                watchSlidesProgress: true,
+            // Using requestAnimationFrame ensures the browser paints the UI 
+            // before the heavy Swiper JS logic runs.
+            requestAnimationFrame(() => {
+                new Swiper(".mySwiperhomesliders", {
+                    autoplay: { delay: 5000, disableOnInteraction: false },
+                    effect: "fade",
+                    speed: 1500,
+                    loop: true,
+                    fadeEffect: { crossFade: true },
+                    watchSlidesProgress: true,
+                    preloadImages: false, // Browser already preloaded these via HTML
+                });
             });
         } else {
             setTimeout(initSwiper, 50);

@@ -7,10 +7,9 @@ import FormattedDate from "../../components/FormattedDate.astro";
 import Header from "../../components/Header.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 
-const posts = (await getCollection("blog")).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
-
+/** * SPEED OPTIMIZATION: 
+ * Combined parallel fetching for all page and blog data.
+ */
 const BLOGQUERY = `
 query blogpage{
    page(id: "blog", idType: URI){
@@ -24,15 +23,11 @@ query blogpage{
       node {
         mediaItemUrl
         altText
-        fileSize
       }
     }
   }
 }
 `;
-const pagedata = await queryWordPress(BLOGQUERY);
-const finaldata = pagedata.page;
-const seodata = finaldata.seo;
 
 const MAIN_BLOGDATA = `
 query MainBlog {
@@ -43,7 +38,6 @@ query MainBlog {
       slug
       excerpt
       date
-      content
       featuredImage {
         node {
           mediaItemUrl
@@ -55,168 +49,171 @@ query MainBlog {
 }
 `;
 
-const allblogpost = await queryWordPress(MAIN_BLOGDATA);
-const alldatahere = allblogpost.posts.nodes;
+const [pagedata, allblogpost] = await Promise.all([
+    queryWordPress(BLOGQUERY),
+    queryWordPress(MAIN_BLOGDATA)
+]);
+
+const finaldata = pagedata?.page || {};
+const seodata = finaldata?.seo || {};
+const alldatahere = allblogpost?.posts?.nodes || [];
+
+const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-			<BaseHead
-			useYoast={true}
-			canonical={seodata.canonical}
-			focuskw={seodata.focuskw}
-		/>
-		{seodata.fullHead && <Fragment set:html={seodata.fullHead} />}
-	</head>
-	<body>
-		<Header />
-		<section class="innerbanner-sec">
-			<img
-				src={finaldata?.featuredImage?.node?.mediaItemUrl || "error"}
-				alt={finaldata?.title || "error"}
-				title={finaldata?.title || "error"}
-				width="1920"
-				height="532"
-				class="banner-image"
-			/>
-			<div class="container">
-				<div class="allabout-banner">
-					<h1 class="fs-80">{finaldata?.title || "error"}</h1>
-				</div>
-			</div>
-		</section>
-		<section class="blogmain-sec">
-			<div class="container">
-				<div class="grid-topblo">
-					<div class="title-blogsss">
-						<h2 class="fs-40 text-green">
-							Green Mountain Fence Blogs
-						</h2>
-					</div>
-					<div class="serach-filters">
-						<div class="inputfilters">
-							<input
-								type="text"
-								id="blogSearch"
-								placeholder="search"
-							/>
-							<button>
-								<img
-									src="/search.png"
-									alt=""
-									height="20"
-									width="20"
-									loading="lazy"
-								/>
-							</button>
-						</div>
-						<div
-							class="clearall"
-							id="clearSearch"
-							style="cursor: pointer;"
-						>
-							<p>
-								Clear <img
-									src="/clear.png"
-									alt="image"
-									height="20"
-									width="20"
-									loading="lazy"
-								/>
-							</p>
-						</div>
-					</div>
-				</div>
-				<div class="blog-grids" id="blogContainer">
-					{
-						alldatahere.map((blogitems) => {
-							return (
-								/* Added data-title and data-content for filtering */
-								<div
-									class="blog-holders"
-									data-title={blogitems.title?.toLowerCase()}
-									data-content={blogitems.excerpt?.toLowerCase()}
-								>
-									<a
-										href={`/blog/${blogitems.slug}`}
-										title={blogitems.title || "error"}
-									>
-										<div class="main-ima">
-											<img
-												src={
-													blogitems?.featuredImage
-														?.node?.mediaItemUrl ||
-													"error"
-												}
-												alt={blogitems.title || "error"}
-												height="347"
-												width="495"
-												loading="lazy"
-											/>
-										</div>
-									</a>
-									<div class="bootm-data">
-										<p class="date">
-											{blogitems?.date
-												? new Date(
-														blogitems.date,
-													).toLocaleDateString(
-														"en-GB",
-													)
-												: "error"}
-										</p>
-										<h6 class="fs-20">
-											{blogitems.title || "error"}
-										</h6>
-										<div
-											set:html={
-												blogitems?.excerpt || "error"
-											}
-										/>
-										<div class="grid-readmore">
-											<div class="read-button">
-												<a
-													href={`/blog/${blogitems.slug}`}
-													title="Read More »"
-												>
-													Read More »
-												</a>
-											</div>
-											<div
-												class="sharenow share-button"
-												style="cursor: pointer;"
-												data-title={blogitems.title}
-												data-url={`/blog/${blogitems.slug}`}
-											>
-												<img
-													src="/share-icon.png"
-													alt={
-														blogitems.title ||
-														"error"
-													}
-													height="20"
-													width="20"
-													loading="lazy"
-												/>
-											</div>
-										</div>
-									</div>
-								</div>
-							);
-						})
-					}
-				</div>
-				<div
-					id="noResults"
-					style="display: none; text-align: center; padding: 50px;"
-				>
-					<p>No blogs found matching your search.</p>
-				</div>
-			</div>
-		</section>
+    <head>
+        <BaseHead
+            useYoast={true}
+            canonical={seodata?.canonical || ""}
+            focuskw={seodata?.focuskw || ""}
+        />
+        {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
 
-		<Footer />
+        {bannerUrl && (
+            <link rel="preload" as="image" href={bannerUrl} fetchpriority="high" />
+        )}
+    </head>
+    <body>
+        <Header />
+        
+        <section class="innerbanner-sec">
+            <img
+                src={bannerUrl || "/fallback.jpg"}
+                alt={finaldata?.title || "Blog"}
+                title={finaldata?.title || "Blog"}
+                width="1920"
+                height="532"
+                /* 2. PRIORITY LOADING */
+                loading="eager"
+                fetchpriority="high"
+                decoding="sync"
+                class="banner-image"
+            />
+            <div class="container">
+                <div class="allabout-banner">
+                    <h1 class="fs-80">{finaldata?.title || "Blog"}</h1>
+                </div>
+            </div>
+        </section>
+
+        <section class="blogmain-sec">
+            <div class="container">
+                <div class="grid-topblo">
+                    <div class="title-blogsss">
+                        <h2 class="fs-40 text-green">
+                            Green Mountain Fence Blogs
+                        </h2>
+                    </div>
+                    <div class="serach-filters">
+                        <div class="inputfilters">
+                            <input
+                                type="text"
+                                id="blogSearch"
+                                placeholder="search"
+                            />
+                            <button aria-label="Search">
+                                <img
+                                    src="/search.png"
+                                    alt=""
+                                    height="20"
+                                    width="20"
+                                    loading="lazy"
+                                />
+                            </button>
+                        </div>
+                        <div
+                            class="clearall"
+                            id="clearSearch"
+                            style="cursor: pointer;"
+                        >
+                            <p>
+                                Clear <img
+                                    src="/clear.png"
+                                    alt="clear"
+                                    height="20"
+                                    width="20"
+                                    loading="lazy"
+                                />
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="blog-grids" id="blogContainer">
+                    {
+                        alldatahere.map((blogitems, index) => {
+                            const postImg = blogitems?.featuredImage?.node?.mediaItemUrl;
+                            return (
+                                <div
+                                    class="blog-holders"
+                                    data-title={blogitems.title?.toLowerCase()}
+                                    data-content={blogitems.excerpt?.toLowerCase()}
+                                >
+                                    <a
+                                        href={`/blog/${blogitems.slug}`}
+                                        title={blogitems.title || ""}
+                                    >
+                                        <div class="main-ima">
+                                            <img
+                                                src={postImg || "/placeholder.jpg"}
+                                                alt={blogitems.title || ""}
+                                                height="347"
+                                                width="495"
+                                                /* Lazy load everything except top 3 posts */
+                                                loading={index < 3 ? "eager" : "lazy"}
+                                                decoding="async"
+                                            />
+                                        </div>
+                                    </a>
+                                    <div class="bootm-data">
+                                        <p class="date">
+                                            {blogitems?.date
+                                                ? new Date(blogitems.date).toLocaleDateString("en-GB")
+                                                : ""}
+                                        </p>
+                                        <h6 class="fs-20">
+                                            {blogitems.title || ""}
+                                        </h6>
+                                        <div set:html={blogitems?.excerpt || ""} />
+                                        <div class="grid-readmore">
+                                            <div class="read-button">
+                                                <a href={`/blog/${blogitems.slug}`}>
+                                                    Read More »
+                                                </a>
+                                            </div>
+                                            <div
+                                                class="sharenow share-button"
+                                                style="cursor: pointer;"
+                                                data-title={blogitems.title}
+                                                data-url={`/blog/${blogitems.slug}`}
+                                            >
+                                                <img
+                                                    src="/share-icon.png"
+                                                    alt="share"
+                                                    height="20"
+                                                    width="20"
+                                                    loading="lazy"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    }
+                </div>
+                <div
+                    id="noResults"
+                    style="display: none; text-align: center; padding: 50px;"
+                >
+                    <p>No blogs found matching your search.</p>
+                </div>
+            </div>
+        </section>
+
+        <Footer />
 
 		<style>
 			.inputfilters input {
@@ -282,11 +279,7 @@ const alldatahere = allblogpost.posts.nodes;
 					flex-direction: column;
 				}
 			}
-			@media (max-width: 767px) {
-				.blog-holders {
-					max-width: 350px;
-				}
-			}
+		
 		</style>
 
 		<script>
