@@ -546,6 +546,10 @@ ul.sub-menu li a {
     text-decoration: none !important;
 }
 
+.post-content a {
+    text-decoration: underline;
+}
+
 
 /* BLOG END */
 
@@ -729,7 +733,7 @@ ul.sub-menu li a {
 @media(max-width:991px) {
     :root {
         --fs-92: 40px;
-        --lh-100: 55px;
+        --lh-100: 50px;
         --fs-80: 35px;
         --fs-60: 28px;
         --lh-70: 37px;
