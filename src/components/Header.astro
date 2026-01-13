@@ -55,6 +55,9 @@ const menuItems = rawNodes
 		),
 	}));
 ---
+{logo && (
+    <link rel="preload" as="image" href={logo} fetchpriority="high" />
+)}
 
 <header class="custom-header">
 	<div class="top-headers">
@@ -79,14 +82,16 @@ const menuItems = rawNodes
 				<div class="grid-mobiles">
 					<div class="main_logo">
 						<HeaderLink href="/" title="Soup4change">
-							<img
-								src={logo}
-								alt="Logo"
-								width="200"
-								height="77"
-								loading="eager"
-							/>
-						</HeaderLink>
+                            <img
+                                src={logo}
+                                alt="Logo"
+                                width="200"
+                                height="77"
+                                loading="eager"
+                                fetchpriority="high"
+                                decoding="sync"
+                            />
+                        </HeaderLink>
 					</div>
 					<div class="menu-icon">
 						<svg
