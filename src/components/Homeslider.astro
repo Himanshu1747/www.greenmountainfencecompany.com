@@ -3,12 +3,21 @@ import { queryWordPress } from "../lib/wordpress";
 
 const QUERY_HOMESLIDER = `
 query GetHomeSliders {
-  homeSliders(first: 5) {
+  homeSliders (first:10){
     nodes {
       id
+      title
       featuredImage {
         node {
           sourceUrl
+        }
+      }
+      homeslidermain{
+        mobileBanner{
+          node{
+            mediaItemUrl
+            altText
+          }
         }
       }
     }
@@ -30,29 +39,44 @@ query Homepage {
 // Fetch data in parallel
 const [datasliders, homdata] = await Promise.all([
     queryWordPress(QUERY_HOMESLIDER),
-    queryWordPress(HOMEDATA)
+    queryWordPress(HOMEDATA),
 ]);
 
 const nodes = datasliders?.homeSliders?.nodes || [];
 const finaldata = homdata?.page?.homepage;
-
-// Extract images for head preloading
-const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(Boolean);
+const firstSlide = nodes[0];
+const preloadDesktop = firstSlide?.featuredImage?.node?.sourceUrl;
+const preloadMobile = firstSlide?.homeslidermain?.mobileBanner?.node?.mediaItemUrl;
 ---
 
-{imageToPreload.map((url, index) => (
-    <link 
-        rel="preload" 
-        as="image" 
-        href={url} 
-        fetchpriority={index === 0 ? "high" : "low"} 
+{/* Preload for Desktop (Screens wider than 606px) */}
+{preloadDesktop && (
+    <link
+        rel="preload"
+        as="image"
+        href={preloadDesktop}
+        media="(min-width: 607px)"
+        fetchpriority="high"
     />
-))}
+)}
+
+{/* Preload for Mobile (Screens 606px and smaller) */}
+{preloadMobile && (
+    <link
+        rel="preload"
+        as="image"
+        href={preloadMobile}
+        media="(max-width: 606px)"
+        fetchpriority="high"
+    />
+)}
 
 <section class="homeslider-sec">
     <div class="container">
         <div class="content-main">
-            <h1 class="fs-92 text-uppercase">{finaldata?.excellenceTitle || "error"} </h1>
+            <h1 class="fs-92 text-uppercase">
+                {finaldata?.excellenceTitle || "error"}
+            </h1>
             <div class="arrow-icon">
                 <a href="#" title="View More" class="link-button">
                     <span>View More</span>
@@ -73,19 +97,32 @@ const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(B
                 {
                     nodes.map((slide, index) => {
                         const imagepath = slide.featuredImage?.node?.sourceUrl;
+                        const mobilepath = slide.homeslidermain?.mobileBanner?.node?.mediaItemUrl;
+                        const altText = slide.homeslidermain?.mobileBanner?.node?.altText || "Fence Excellence";
+                        
                         return (
-                            <div class="swiper-slide">
+                            <div class="swiper-slide" key={slide.id}>
                                 <div class="slider-image">
-                                    <img
-                                        src={imagepath || "/placeholder.jpg"}
-                                        alt="Fence Excellence"
-                                        width="1920"
-                                        height="929"
-                                        /* 2. PRIORITY CONTROL: Eager for first, lazy for others */
-                                        loading={index === 0 ? "eager" : "lazy"}
-                                        fetchpriority={index === 0 ? "high" : "low"}
-                                        decoding={index === 0 ? "sync" : "async"}
-                                    />
+                                    <picture>
+                                        {/* Mobile Source */}
+                                        {mobilepath && (
+                                            <source
+                                                media="(max-width: 606px)"
+                                                srcSet={mobilepath}
+                                            />
+                                        )}
+
+                                        {/* Desktop/Default Source */}
+                                        <img
+                                            src={imagepath || "/placeholder.jpg"}
+                                            alt={altText}
+                                            width="1920"
+                                            height="929"
+                                            loading={index === 0 ? "eager" : "lazy"}
+                                            fetchpriority={index === 0 ? "high" : "low"}
+                                            decoding={index === 0 ? "sync" : "async"}
+                                        />
+                                    </picture>
                                 </div>
                             </div>
                         );
@@ -97,10 +134,9 @@ const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(B
 </section>
 
 <style>
-    /* 3. ASPECT RATIO: Prevents Layout Shift (CLS) */
     .slider-image {
         aspect-ratio: 1920 / 929;
-        height: auto; 
+        height: auto;
         width: 100%;
         overflow: hidden;
         background: #f0f0f0;
@@ -135,13 +171,19 @@ const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(B
             0 -2px 0 var(--color-white);
     }
 
-    /* Keep your media queries for responsive heights */
     @media (max-width: 1600px) {
-        .slider-image { height: 697px; aspect-ratio: auto; }
-        .content-main { transform: translate(-0%, -38%); }
+        .slider-image {
+            height: 697px;
+            aspect-ratio: auto;
+        }
+        .content-main {
+            transform: translate(-0%, -38%);
+        }
     }
     @media (max-width: 1400px) {
-        .slider-image { height: 640px; }
+        .slider-image {
+            height: 640px;
+        }
     }
     @media (max-width: 1199px) {
         .content-main {
@@ -160,11 +202,8 @@ const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(B
 </style>
 
 <script is:inline>
-    // 4. SMART INITIALIZATION
     function initSwiper() {
-        if (typeof Swiper !== 'undefined') {
-            // Using requestAnimationFrame ensures the browser paints the UI 
-            // before the heavy Swiper JS logic runs.
+        if (typeof Swiper !== "undefined") {
             requestAnimationFrame(() => {
                 new Swiper(".mySwiperhomesliders", {
                     autoplay: { delay: 5000, disableOnInteraction: false },
@@ -173,7 +212,7 @@ const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(B
                     loop: true,
                     fadeEffect: { crossFade: true },
                     watchSlidesProgress: true,
-                    preloadImages: false, // Browser already preloaded these via HTML
+                    preloadImages: false, 
                 });
             });
         } else {
