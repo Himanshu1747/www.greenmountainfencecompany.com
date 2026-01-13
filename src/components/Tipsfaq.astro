@@ -1,0 +1,195 @@
+---
+import { queryWordPress } from "../lib/wordpress";
+
+const FAQ_DATA = `
+query FAQDATA {
+  faqs(first: 5) {
+    nodes {
+      title
+      content
+    }
+  }
+}
+`;
+
+const dataget = await queryWordPress(FAQ_DATA);
+const finaldata = dataget?.faqs?.nodes ? [...dataget.faqs.nodes].reverse() : [];
+---
+
+<section class="tipasfaq-sec">
+    <img
+        src="/overlay-image-2.png"
+        alt=""
+        width="1920"
+        height="466"
+        loading="lazy"
+        decoding="async"
+        class="overlays-image"
+    />
+    <div class="container">
+        <div class="center-data">
+            <h4 class="fs-60">Tips and FAQs</h4>
+            <p>Common Questions and Answers for Fence Installation</p>
+        </div>
+
+        <div class="faq-container">
+            {
+                finaldata.map((item) => (
+                    <div class="faq-holders">
+                        <div class="grid-faq" role="button" aria-expanded="false">
+                            <div class="title-faq">
+                                <h6 class="fs-25 p-0">
+                                    {item.title}
+                                </h6>
+                            </div>
+                            <div class="faq-icon">
+                                <span class="faq-symbol" />
+                            </div>
+                        </div>
+
+                        <div class="bootm-data">
+                            <div class="inner-content" set:html={item.content} />
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
+        
+        <div class="arrow-icon">
+            <a href="/faq" title="View More" class="link-button">
+                <span>View More</span>
+                <img
+                    src="/right-icon.png"
+                    alt=""
+                    height="20"
+                    width="20"
+                    loading="eager"
+                />
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .faq-container {
+        max-width: 845px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .grid-faq .fs-25 {
+        font-weight: 700;
+    }
+
+    .center-data {
+        max-width: fit-content;
+        margin: 0 auto;
+        text-align: center;
+        padding-bottom: 55px;
+    }
+
+    section.tipasfaq-sec {
+        background: var(--color-green);
+        color: var(--color-white);
+        position: relative;
+        z-index: 1;
+        padding: 80px 0px;
+        overflow: hidden;
+    }
+
+    .overlays-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        width: 100%;
+        height: auto;
+    }
+
+    .grid-faq.active span.faq-symbol {
+        transform: rotate(225deg);
+    }
+
+    span.faq-symbol {
+        width: 14px;
+        height: 14px;
+        border-right: 3px solid #fff;
+        border-bottom: 3px solid #fff;
+        transform: rotate(45deg);
+        display: inline-block;
+        transition: transform 0.3s ease;
+    }
+
+    .grid-faq {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 20px 0px;
+        user-select: none;
+    }
+
+    .bootm-data {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
+    }
+
+    .bootm-data.show {
+        max-height: 1000px;
+        transition: max-height 0.4s cubic-bezier(1, 0, 1, 0);
+    }
+
+    .inner-content {
+        padding: 20px 0px;
+    }
+
+    .fs-25 {
+        font-size: var(--fs-25);
+        font-weight: 500;
+    }
+
+    section.tipasfaq-sec .arrow-icon {
+        max-width: fit-content;
+        margin: 0 auto;
+        padding-top: 30px;
+    }
+
+    @media (max-width: 1600px) {
+        section.tipasfaq-sec { padding: 60px 0px; }
+    }
+    @media (max-width: 1400px) {
+        .center-data { padding-bottom: 30px; }
+        .grid-faq { padding: 15px 0px; }
+    }
+    @media (max-width: 991px) {
+        section.tipasfaq-sec { padding: 40px 0px; }
+    }
+</style>
+
+<script is:inline>
+    // OPTIMIZATION: Vanilla JS for instant interaction without waiting for jQuery
+    document.addEventListener("DOMContentLoaded", () => {
+        const faqs = document.querySelectorAll(".grid-faq");
+        faqs.forEach(faq => {
+            faq.addEventListener("click", () => {
+                const holder = faq.parentElement;
+                const content = holder.querySelector(".bootm-data");
+                
+                // Close others
+                document.querySelectorAll(".bootm-data").forEach(item => {
+                    if (item !== content) {
+                        item.classList.remove("show");
+                        item.previousElementSibling.classList.remove("active");
+                    }
+                });
+
+                // Toggle current
+                content.classList.toggle("show");
+                faq.classList.toggle("active");
+            });
+        });
+    });
+</script>

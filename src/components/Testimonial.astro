@@ -1,0 +1,170 @@
+---
+import { queryWordPress } from "../lib/wordpress";
+const GET_TESTIMONIALS_DATA = `
+query GetTestimonialsData {
+  page(id: "reviews", idType: URI) {
+    reviews {
+      title
+      subTitle
+      quatationImagew {
+        node {
+          mediaItemUrl
+          altText
+        }
+      }
+    }
+  }
+  testimonials(first: 15) {
+    nodes {
+      title
+      content
+      testimonials { 
+        ratingImage {
+          node {
+            sourceUrl
+            altText
+          }
+        }
+      }
+    }
+  }
+}
+`;
+
+const res = await queryWordPress(GET_TESTIMONIALS_DATA);
+const alldata = res?.page?.reviews;
+// Reverse once in the frontmatter instead of during render
+const finalcptdata = res?.testimonials?.nodes ? [...res.testimonials.nodes].reverse() : [];
+---
+
+<section class="testimonial-sec">
+    <div class="container">
+        <div class="testimonial-parents">
+            <div class="testimonial-holders">
+                {
+                    alldata && (
+                        <header>
+                            <h6 class="fs-25 taglines">{alldata.subTitle}</h6>
+                            <h2 class="fs-60 text-green">{alldata.title}</h2>
+                        </header>
+                    )
+                }
+
+                <div class="sliderheree">
+                    <div class="swiper mySwipertestimonial">
+                        <div class="swiper-wrapper">
+                            {
+                                finalcptdata.map((item) => (
+                                    <div class="swiper-slide">
+                                        <div class="only-reviewdata">
+                                            {item.testimonials?.ratingImage?.node?.sourceUrl && (
+                                                <div class="rating-image">
+                                                    <img
+                                                        src={item.testimonials.ratingImage.node.sourceUrl}
+                                                        alt={item.testimonials.ratingImage.node.altText || "Rating"}
+                                                        loading="lazy"
+                                                        width="100"
+                                                        height="20"
+                                                        decoding="async"
+                                                    />
+                                                </div>
+                                            )}
+                                            <div
+                                                set:html={item.content || "No content available"}
+                                            />
+                                            <h6 class="fs-25">{item.title}</h6>
+                                        </div>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {
+                alldata?.quatationImagew?.node && (
+                    <div class="quote-icon">
+                        <img
+                            src={alldata.quatationImagew.node.mediaItemUrl}
+                            alt={alldata.quatationImagew.node.altText || "quote icon"}
+                            width="673"
+                            height="239"
+                            loading="lazy"
+                            decoding="async"
+                        />
+                    </div>
+                )
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .testimonial-holders {
+        max-width: 60%;
+        width: 100%;
+    }
+
+    .testimonial-parents {
+        position: relative;
+        z-index: 1;
+    }
+
+    .quote-icon {
+        max-width: 673px;
+        width: 100%;
+        position: absolute;
+        top: 97px;
+        right: 11%;
+        pointer-events: none; /* Speed: ensures the image doesn't block clicks */
+    }
+
+    .testimonial-holders .fs-25.taglines {
+        font-weight: 400;
+    }
+
+    section.testimonial-sec {
+        padding: 100px 0px;
+    }
+    @media(max-width:1600px){
+        section.testimonial-sec{
+            padding: 60px 0px;
+        }
+    }
+    @media (max-width: 1400px) {
+        .quote-icon {
+            max-width: 400px;
+        }
+        section.testimonial-sec{
+            padding: 40px 0px;
+        }
+    }
+    @media (max-width: 991px) {
+        section.testimonial-sec{
+            padding: 30px 0px;
+        }
+        .quote-icon {
+            display: none;
+        }
+        .testimonial-holders {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@7/swiper-bundle.min.css" media="print" onload="this.media='all'" />
+<script is:inline src="https://cdn.jsdelivr.net/npm/swiper@7/swiper-bundle.min.js"></script>
+
+<script is:inline>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (typeof Swiper !== 'undefined') {
+            new Swiper(".mySwipertestimonial", {
+                autoplay: { delay: 4000 },
+                speed: 1500,
+                loop: true,
+                grabCursor: true
+            });
+        }
+    });
+</script>

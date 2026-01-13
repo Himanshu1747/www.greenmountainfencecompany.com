@@ -1,0 +1,348 @@
+---
+import { queryWordPress } from "../lib/wordpress";
+import BaseHead from "../components/BaseHead.astro";
+import Excellence from "../components/Excellence.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import Homeslider from "../components/Homeslider.astro";
+import Testimonial from "../components/Testimonial.astro";
+import Tipsfaq from "../components/Tipsfaq.astro";
+
+const HOMEDATA = `
+query Homepage {
+  page(id: "/", idType: URI) {
+    id
+    title
+    seo {
+      canonical
+      cornerstone
+      fullHead
+    }
+    homepage {
+      excellenceTitle
+      bannerTitle
+      bannerButton {
+        url
+        title
+        target
+      }
+      bannerParagraph
+      title
+      descrption
+      professionalImage {
+        node {
+          sourceUrl
+          altText
+        }
+      }
+      aboutTitle
+      aboutDescription
+      aboutButton {
+        url
+        title
+        target
+      }
+      video {
+        node {
+          mediaItemUrl
+        }
+      }
+      videoPoster {
+        node {
+          mediaItemUrl
+        }
+      }
+    }
+  }
+}
+`;
+
+// Execute the fetch
+const pagedata = await queryWordPress(HOMEDATA);
+
+// Fail-safe data handling
+const responsedata = pagedata?.page || {};
+const homepage = responsedata?.homepage || {};
+const seodata = responsedata?.seo || {};
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			useYoast={true}
+			canonical={seodata?.canonical || ""}
+			focuskw={seodata?.focuskw || ""}
+		/>
+		{seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
+	</head>
+	<body>
+		<Header />
+		<Homeslider />
+
+		<section class="matchbeatdata-sec">
+			<div class="container">
+				<div
+					class="matchdata-pargaraph"
+					set:html={homepage?.bannerParagraph || ""}
+				/>
+			</div>
+		</section>
+
+		<section class="profesional-sec">
+			<img
+				src="/overlay-image.png"
+				alt=""
+				width="1920"
+				height="466"
+				loading="lazy"
+				class="overlays-image"
+			/>
+			<div class="container">
+				<div class="row profesional-row">
+					<div class="col-xl-7">
+						<div class="about-profesional">
+							<h2 class="fs-80 text-green">
+								{homepage?.title || ""}
+							</h2>
+							<div set:html={homepage?.descrption || ""} />
+						</div>
+					</div>
+					<div class="col-xl-5">
+						<div class="instalation-image">
+							<img
+								src={homepage?.professionalImage?.node
+									?.sourceUrl || ""}
+								alt={homepage?.title || ""}
+								title={homepage?.title || ""}
+								width="551"
+								height="598"
+								loading="lazy"
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="excellence-sec">
+			<div class="container">
+				<div class="parent-excellence">
+					<div class="excelence-title">
+						<h2 class="fs-60 text-green">
+							{homepage?.excellenceTitle || ""}
+						</h2>
+					</div>
+					<Excellence />
+				</div>
+			</div>
+		</section>
+
+		<section class="homeabout-sec">
+			<div class="abouthome-grid">
+				<div class="about-video">
+					<video
+						src={homepage?.video?.node?.mediaItemUrl || ""}
+						poster={homepage?.videoPoster?.node?.mediaItemUrl || ""}
+						class="aboutvideos"
+						controls
+						playsinline></video>
+				</div>
+				<div class="homeabout-details">
+					<img
+						src="/mountain-image.png"
+						alt="image"
+						width="547"
+						height="162"
+						loading="lazy"
+						class="mountain-image"
+					/>
+					<div class="about-holders">
+						<h3 class="fs-80">
+							{homepage?.aboutTitle || ""}
+						</h3>
+						<div set:html={homepage?.aboutDescription || ""} />
+
+						<div class="arrow-icon">
+							<a
+								href={homepage?.aboutButton?.url || "#"}
+								title={homepage?.aboutButton?.title || ""}
+								target={homepage?.aboutButton?.target ||
+									"_self"}
+								class="link-button"
+								><span
+									>{homepage?.aboutButton?.title || ""}</span
+								>
+								<img
+									src="/right-icon.png"
+									alt=""
+									height="20"
+									width="20"
+									loading="eager"
+								/></a
+							>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<Testimonial />
+		<Tipsfaq />
+
+		<Footer />
+
+		<style>
+			section.matchbeatdata-sec {
+				padding: 44px 0px;
+				text-align: center;
+				background: var(--color-green);
+				color: var(--color-white);
+			}
+			.about-profesional li {
+				list-style: disc;
+			}
+
+			.about-profesional ul {
+				padding-left: 30px;
+			}
+			.instalation-image {
+				max-width: 551px;
+				width: 100%;
+				margin-left: auto;
+			}
+			.about-profesional {
+				max-width: 904px;
+				width: 100%;
+			}
+			.profesional-sec {
+				position: relative;
+				padding-top: 100px;
+				padding-bottom: 30px;
+			}
+			.abouthome-grid {
+				display: flex;
+			}
+
+			.about-video,
+			.homeabout-details {
+				max-width: 50%;
+				width: 100%;
+			}
+
+			.aboutvideos {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				object-position: center left;
+			}
+
+			.about-video {
+				height: 818px;
+				overflow: hidden;
+			}
+
+			section.homeabout-sec {
+				background: var(--color-green);
+				color: var(--color-white);
+			}
+
+			.about-holders {
+				max-width: 90%;
+				width: 100%;
+				padding: 20px 0px;
+			}
+
+			.homeabout-details {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				position: relative;
+				z-index: 1;
+			}
+
+			.about-holders .arrow-icon {
+				padding-top: 20px;
+			}
+
+			.about-holders .arrow-icon .link-button:hover {
+				background: var(--color-white);
+				color: var(--color-green);
+			}
+
+			.about-holders .arrow-icon .link-button:hover img {
+				filter: invert(0);
+			}
+
+			.mountain-image {
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				z-index: -1;
+				max-width: 547px;
+				width: 100%;
+			}
+
+			@media (max-width: 1600px) {
+				.profesional-sec {
+					padding-top: 70px;
+				}
+				.about-profesional {
+					max-width: 95%;
+				}
+
+				.about-video {
+					height: 650px;
+				}
+
+				section.matchbeatdata-sec {
+					padding: 15px 0px;
+				}
+			}
+			@media (max-width: 1400px) {
+				.mountain-image {
+					max-width: 350px;
+				}
+			}
+			@media (max-width: 1199px) {
+				.instalation-image {
+					margin: 0 auto;
+				}
+				.about-profesional {
+					max-width: 100%;
+				}
+				.profesional-row {
+					gap: 20px;
+				}
+				section.profesional-sec {
+					padding: 40px 0px;
+				}
+			}
+			@media (max-width: 991px) {
+				.abouthome-grid {
+					flex-direction: column;
+					gap: 30px;
+				}
+
+				.about-video {
+					height: auto;
+				}
+				.about-video,
+				.homeabout-details {
+					max-width: 100%;
+					padding: 0px;
+				}
+				.about-holders {
+					max-width: 95%;
+					padding: 0;
+					padding-bottom: 30px;
+				}
+			}
+			@media (max-width: 767px) {
+				section.profesional-sec {
+					padding: 30px 0px;
+				}
+			}
+		</style>
+	</body>
+</html>

@@ -1,0 +1,181 @@
+---
+import { queryWordPress } from "../lib/wordpress";
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Excellence from "../components/Excellence.astro";
+import Testimonial from "../components/Testimonial.astro";
+import Tipsfaq from "../components/Tipsfaq.astro";
+import Footer from "../components/Footer.astro";
+
+const QUERY_ABOUT = `
+query Aboutpage {
+  page(id: "about", idType: URI) {
+    title
+    seo {
+      canonical
+      cornerstone
+      fullHead
+    }
+    featuredImage {
+      node {
+        mediaItemUrl
+        altText
+      }
+    }
+    aboutUs {
+      excellenceTitle
+      video {
+        node {
+          mediaItemUrl
+        }
+      }
+      videoPoster {
+        node {
+          mediaItemUrl
+        }
+      }
+      aboutUsTitle
+      aboutDesc
+    }
+  }
+}
+`;
+
+const pagedata = await queryWordPress(QUERY_ABOUT);
+
+// Fail-safe data handling to prevent build errors
+const finaldata = pagedata?.page || {};
+const seodata = finaldata?.seo || {};
+const aboutUs = finaldata?.aboutUs || {};
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead
+            useYoast={true}
+            canonical={seodata?.canonical || ""}
+            focuskw={seodata?.focuskw || ""}
+        />
+        {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
+    </head>
+    <body>
+        <Header />
+
+        <section class="innerbanner-sec">
+            {/* SPEED OPTIMIZATION: 
+               The banner is likely the LCP element. 
+               We use loading="eager" and fetchpriority="high".
+            */}
+            <img
+                src={finaldata?.featuredImage?.node?.mediaItemUrl || ""}
+                alt={finaldata?.featuredImage?.node?.altText || finaldata?.title || ""}
+                title={finaldata?.title || ""}
+                width="1920"
+                height="532"
+                loading="eager"
+                fetchpriority="high"
+                class="banner-image"
+            />
+            <div class="container">
+                <div class="allabout-banner">
+                    <h1 class="fs-80">{finaldata?.title || ""}</h1>
+                </div>
+            </div>
+        </section>
+
+        <section class="mainabout-sec">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-xl-6">
+                        <div class="about-data">
+                            <h2 class="fs-60">
+                                {aboutUs?.aboutUsTitle || ""}
+                            </h2>
+                            <div
+                                set:html={aboutUs?.aboutDesc || ""}
+                            />
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="aboutvideo">
+                            <video
+                                src={aboutUs?.video?.node?.mediaItemUrl || ""}
+                                poster={aboutUs?.videoPoster?.node?.mediaItemUrl || ""}
+                                width="671"
+                                height="459"
+                                controls
+                                playsinline
+                                preload="metadata"></video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="excellence-sec">
+            <div class="container">
+                <div class="parent-excellence">
+                    <div class="excelence-title">
+                        <h2 class="fs-60 text-green">
+                            {aboutUs?.excellenceTitle || ""}
+                        </h2>
+                    </div>
+                    <Excellence />
+                </div>
+            </div>
+        </section>
+
+        <Testimonial />
+        <Tipsfaq />
+        <Footer />
+
+        <style>
+            .aboutvideo video {
+                height: 100%;
+                width: 100%;
+                object-fit: cover;
+            }
+            .aboutvideo {
+                height: 460px;
+                max-width: 670px;
+                overflow: hidden;
+                width: 100%;
+                margin-left: auto;
+            }
+
+            .about-data {
+                max-width: 775px;
+                width: 100%;
+            }
+            section.mainabout-sec {
+                padding: 130px 0px 50px 0px;
+            }
+
+            @media (max-width: 1600px) {
+                section.mainabout-sec {
+                    padding: 70px 0px 20px 0px;
+                }
+            }
+            @media (max-width: 1400px) {
+                section.mainabout-sec {
+                    padding: 50px 0px 20px 0px;
+                }
+                .aboutvideo {
+                    height: 350px;
+                    margin: 0 auto;
+                }
+            }
+            @media (max-width: 1199px) {
+                .aboutvideo {
+                    height: 400px;
+                    padding-top: 30px;
+                }
+
+                section.mainabout-sec {
+                    padding: 40px 0px 20px 0px;
+                }
+            }
+        </style>
+    </body>
+</html>

@@ -1,0 +1,75 @@
+---
+import { queryWordPress } from "../lib/wordpress";
+
+const footermu = `
+query Footermenu {
+  menu(id: "footermenu", idType: SLUG) {
+    menuItems(first: 50) {
+      nodes {
+        label
+        uri
+        target
+      }
+    }
+  }
+}
+`;
+
+const widgetdataaa = `
+query GetFooterData {
+  footerbottom: sidebar(id: "footer-widget-1")
+  footerlogo: sidebar(id: "sidebar-1")
+  contactdetails: sidebar(id: "footer-widget-2")
+  copyrights: sidebar(id: "copy-rights")
+  protect: sidebar(id: "protect-text")
+}
+`;
+
+const [menuRes, widgetRes] = await Promise.all([
+  queryWordPress(footermu),
+  queryWordPress(widgetdataaa)
+]);
+
+const finaldata = menuRes?.menu?.menuItems?.nodes || [];
+const finalwidget = widgetRes || {};
+---
+
+<footer class="custom-footer">
+    <div class="container">
+        <div class="grid-footer">
+            <div class="logo-data">
+                <div set:html={finalwidget.footerlogo || ""}></div>
+                <div set:html={finalwidget.footerbottom || ""}></div>
+            </div>
+            <div class="protct-holders">
+                <div class="protct-title" set:html={finalwidget?.protect || ""}></div>
+                <div class="grid-footerlist">
+                    <div class="quick-linksdata">
+                        <h6>Quick Links</h6>
+                        <ul class="links-data">
+                            {
+                                finaldata.map((menuitem) => (
+                                    <li>
+                                        <a
+                                            href={menuitem.uri || "#"}
+                                            title={menuitem.label}
+                                            target={menuitem.target || "_self"}
+                                        >
+                                            {menuitem.label}
+                                        </a>
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                    </div>
+                    <div class="gettouch-hold" set:html={finalwidget.contactdetails || ""}></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="copyrights">
+        <div class="container">
+            <div set:html={finalwidget.copyrights || ""}></div>
+        </div>
+    </div>
+</footer>

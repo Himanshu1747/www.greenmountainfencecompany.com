@@ -1,0 +1,374 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import { queryWordPress } from "../lib/wordpress";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+const FAQ_DATA = `
+query FAQDATA {
+  faqs(first: 100) {
+    nodes {
+      title
+      content
+    }
+  }
+}
+`;
+
+const FAQPAGE_QUERY = `
+query faqpage {
+  page(id: "faq", idType: URI) {
+    title
+    content
+    seo {
+      canonical
+      cornerstone
+      fullHead
+    }
+    featuredImage {
+      node {
+        mediaItemUrl
+        altText
+      }
+    }
+    faq {
+      commonQuestionsTitle
+      faqImage {
+        node {
+          mediaItemUrl
+          altText
+        }
+      }
+    }
+  }
+}
+`;
+
+/** * SPEED OPTIMIZATION: 
+ * We fetch both datasets simultaneously using Promise.all 
+ * instead of waiting for one to finish before starting the next.
+ */
+const [dataget, datapage] = await Promise.all([
+  queryWordPress(FAQ_DATA),
+  queryWordPress(FAQPAGE_QUERY)
+]);
+
+const faqNodes = dataget?.faqs?.nodes ? [...dataget.faqs.nodes].reverse() : []; 
+const pageData = datapage?.page || {};
+const seodata = pageData?.seo || {};
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+       <BaseHead
+            useYoast={true}
+            canonical={seodata?.canonical || ""}
+            focuskw={seodata?.focuskw || ""}
+        />
+        {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
+    </head>
+    <body>
+        <Header />
+
+        <section class="innerbanner-sec">
+            <img
+                src={pageData?.featuredImage?.node?.mediaItemUrl || "/fallback.jpg"}
+                alt={pageData?.featuredImage?.node?.altText || pageData?.title || "FAQ"}
+                width="1920"
+                height="532"
+                loading="eager" 
+                fetchpriority="high"
+                class="banner-image"
+            />
+            <div class="container">
+                <div class="allabout-banner">
+                    <h1 class="fs-80">{pageData?.title || "FAQ"}</h1>
+                </div>
+            </div>
+        </section>
+
+        <section class="mainafaq-sec">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-7">
+                        <div class="allabout-faqs">
+                            <div class="main-titlehere">
+                                <h2 class="fs-40">
+                                    {pageData?.faq?.commonQuestionsTitle || ""}
+                                </h2>
+                            </div>
+
+                            <div class="faq-container">
+                                {
+                                    faqNodes.map((item) => (
+                                        <div class="faq-holders">
+                                            <div class="grid-faq">
+                                                <div class="title-faq">
+                                                    <h6 class="fs-25 p-0">
+                                                        {item.title}
+                                                    </h6>
+                                                </div>
+                                                <div class="faq-icon">
+                                                    <span class="faq-symbol" />
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="bootm-data"
+                                                set:html={item.content}
+                                            />
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="faq-data">
+                            <div set:html={pageData?.content || ""}></div>
+                            <div class="image-faqs">
+                                <img
+                                    src={pageData?.faq?.faqImage?.node?.mediaItemUrl || ""}
+                                    alt={pageData?.faq?.faqImage?.node?.altText || "FAQ Illustration"}
+                                    width="606"
+                                    height="869"
+                                    loading="lazy"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <Footer />
+
+        <style>
+            .main-titlehere .fs-40 {
+                font-weight: 700;
+            }
+
+            /* FAQ CSS MAIN HERE  */
+            .faq-section {
+                max-width: 700px;
+                margin: auto;
+                background: #fff;
+                padding: 25px;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .faq-item {
+                border-bottom: 1px solid #ddd;
+                padding: 15px 0;
+            }
+
+            .faq-question {
+                font-weight: 600;
+                cursor: pointer;
+                position: relative;
+            }
+
+            .faq-question::after {
+                content: "+";
+                position: absolute;
+                right: 0;
+                font-size: 18px;
+                transition: transform 0.3s ease;
+            }
+
+            .faq-item.active .faq-question::after {
+                content: "−";
+            }
+
+            .faq-answer {
+                display: none;
+                margin-top: 10px;
+                color: #444;
+            }
+            span.faq-symbol {
+                width: 20px;
+                height: 20px;
+                position: relative;
+                display: inline-block;
+            }
+
+            /* horizontal line */
+            span.faq-symbol::before,
+            span.faq-symbol::after {
+                content: "";
+                position: absolute;
+                background: var(--color-white); /* icon color */
+                border-radius: 2px;
+            }
+
+            /* horizontal */
+            span.faq-symbol::before {
+                width: 100%;
+                height: 3px;
+                top: 50%;
+                left: 0;
+                transform: translateY(-50%);
+            }
+
+            /* vertical */
+            span.faq-symbol::after {
+                height: 100%;
+                width: 3px;
+                left: 50%;
+                top: 0;
+                transform: translateX(-50%);
+            }
+
+            .faq-icon {
+                max-width: fit-content;
+                width: 100%;
+                cursor: pointer;
+            }
+
+            .grid-faq {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                background: var(--color-F8F5EF);
+                cursor: pointer;
+            }
+
+            .grid-faq {
+                padding: 20px 28px;
+                background: var(--color-green);
+                color: var(--color-white);
+            }
+
+            .bootm-data {
+                display: none;
+                padding-left: 20px;
+            }
+
+            .faq-container {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .grid-faq.active .faq-symbol::after {
+                transform: translateX(-50%) scaleY(0);
+            }
+
+            .fs-25 {
+                font-size: var(--fs-25);
+                font-style: normal;
+                font-weight: 500;
+                line-height: normal;
+            }
+
+            .bootm-data ol,
+            .bootm-data ul {
+                margin: 0;
+            }
+
+            /* FAQ CSS MAIN HERE END */
+
+            .faq-data {
+                max-width: 605px;
+                width: 100%;
+                margin-left: auto;
+            }
+            .image-faqs {
+                max-width: 606px;
+                width: 100%;
+                padding-top: 30px;
+            }
+
+            .allabout-faqs {
+                max-width: 890px;
+                width: 100%;
+            }
+
+            .faq-container {
+                padding-top: 140px;
+            }
+
+            section.mainafaq-sec {
+                padding: 90px 0px;
+            }
+            .title-faq .fs-25 {
+                font-size: 20px;
+                font-style: normal;
+                font-weight: 700;
+                line-height: 28px;
+            }
+            .main-titlehere {
+                max-width: 645px;
+                width: 100%;
+            }
+
+            @media (max-width: 1600px) {
+                .grid-faq {
+                    padding: 15px 20px;
+                }
+
+                .faq-container {
+                    padding-top: 115px;
+                }
+                section.mainafaq-sec {
+                    padding: 60px 0px;
+                }
+            }
+            @media (max-width: 1400px) {
+                .grid-faq {
+                    padding: 10px;
+                }
+                span.faq-symbol {
+                    width: 16px;
+                    height: 16px;
+                }
+                .main-titlehere {
+                    max-width: 450px;
+                }
+            }
+            @media (max-width: 1199px) {
+                section.mainafaq-sec {
+                    padding: 40px 0px;
+                }
+            }
+            @media (max-width: 991px) {
+                .faq-container {
+                    padding-top: 30px;
+                }
+                .title-faq .fs-25 {
+                    font-size: 18px;
+                }
+                .faq-data {
+                    max-width: 100%;
+                    margin: 0 auto;
+                    padding-top: 30px;
+                }
+                .image-faqs {
+                    padding-top: 20px;
+                    margin: 0 auto;
+                }
+            }
+            @media (max-width: 575px) {
+                section.mainafaq-sec {
+                    padding: 30px 0px;
+                }
+            }
+        </style>
+
+        <script is:inline src="https://code.jquery.com/jquery-3.6.0.min.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $(".grid-faq").click(function () {
+                    let $faqHolder = $(this).closest(".faq-holders");
+                    $(".faq-holders .bootm-data").not($faqHolder.find(".bootm-data")).slideUp();
+                    $(".grid-faq").not($(this)).removeClass("active");
+                    
+                    $faqHolder.find(".bootm-data").slideToggle();
+                    $(this).toggleClass("active");
+                });
+            });
+        </script>
+    </body>
+</html>

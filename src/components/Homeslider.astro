@@ -1,0 +1,147 @@
+---
+import { queryWordPress } from "../lib/wordpress";
+
+const QUERY_HOMESLIDER = `
+query GetHomeSliders {
+  homeSliders(first: 5) {
+    nodes {
+      featuredImage {
+        node {
+          sourceUrl
+        }
+      }
+    }
+  }
+}
+`;
+
+const datasliders = await queryWordPress(QUERY_HOMESLIDER);
+const nodes = datasliders?.homeSliders?.nodes || [];
+---
+
+<section class="homeslider-sec">
+    <div class="container">
+        <div class="content-main">
+            <h1 class="fs-92 text-uppercase">
+                Exceptional Fences at Unbeatable Prices
+            </h1>
+            <div class="arrow-icon">
+                <a href="#" title="View More" class="link-button">
+                    <span>View More</span>
+                    <img
+                        src="/right-icon.png"
+                        alt=""
+                        height="20"
+                        width="20"
+                        loading="eager"
+                    />
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="silder-holde">
+        <div class="swiper mySwiperhomesliders">
+            <div class="swiper-wrapper">
+                {
+                    nodes.map((slide, index) => {
+                        const imagepath = slide.featuredImage?.node?.sourceUrl;
+                        return (
+                            <div class="swiper-slide">
+                                <div class="slider-image">
+                                    <img
+                                        src={imagepath || "/placeholder.jpg"}
+                                        alt=""
+                                        width="1920"
+                                        height="929"
+                                        /* SPEED OPTIMIZATION: Only eager load the first slide */
+                                        loading={index === 0 ? "eager" : "lazy"}
+                                        fetchpriority={index === 0 ? "high" : "low"}
+                                        decoding={index === 0 ? "sync" : "async"}
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .slider-image {
+        height: 929px;
+        width: 100%;
+        overflow: hidden;
+        background: #f0f0f0; /* Placeholder color while loading */
+    }
+
+    .slider-image img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    section.homeslider-sec {
+        position: relative;
+    }
+
+    .content-main {
+        position: absolute;
+        top: 50%;
+        z-index: 11;
+        max-width: 50%;
+        transform: translate(-0%, -40%);
+        width: 100%;
+    }
+
+    .content-main .fs-92 {
+        color: var(--color-green);
+        text-shadow:
+            2px 0 0 var(--color-white),
+            -2px 0 0 var(--color-white),
+            0 2px 0 var(--color-white),
+            0 -2px 0 var(--color-white);
+    }
+
+    @media (max-width: 1600px) {
+        .slider-image { height: 697px; }
+        .content-main { transform: translate(-0%, -38%); }
+    }
+    @media (max-width: 1400px) {
+        .slider-image { height: 640px; }
+    }
+    @media (max-width: 1199px) {
+        .content-main {
+            max-width: 767px;
+            text-align: center;
+            margin: 0 auto;
+            width: 95%;
+            transform: translate(-50%, -38%);
+            left: 50%;
+        }
+        .content-main .arrow-icon {
+            max-width: fit-content;
+            margin: 0 auto;
+        }
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@7/swiper-bundle.min.css" media="print" onload="this.media='all'" />
+
+<script is:inline src="https://cdn.jsdelivr.net/npm/swiper@7/swiper-bundle.min.js"></script>
+
+<script is:inline>
+    document.addEventListener("DOMContentLoaded", () => {
+        if (typeof Swiper !== 'undefined') {
+            new Swiper(".mySwiperhomesliders", {
+                autoplay: { delay: 5000 },
+                effect: "fade",
+                speed: 1500,
+                loop: true,
+                fadeEffect: { crossFade: true },
+            });
+        }
+    });
+</script>

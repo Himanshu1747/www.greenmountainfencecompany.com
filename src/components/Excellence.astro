@@ -1,0 +1,167 @@
+---
+import { queryWordPress } from "../lib/wordpress";
+
+const QUERY_EXCELLENCE = `
+query CategoriesPage {
+  catgoriesPages {
+    nodes {
+      title
+      content
+      featuredImage {
+        node {
+          sourceUrl
+          altText
+        }
+      }
+      catgoriesPageLinks {
+        pageLink {
+          url
+          title
+        }
+      }
+    }
+  }
+}
+`;
+
+const pagedata = await queryWordPress(QUERY_EXCELLENCE);
+// Handle potential nulls and reverse the array once
+const rawNodes = pagedata?.catgoriesPages?.nodes || [];
+const excellenceData = [...rawNodes].reverse();
+---
+
+<div class="grid-excell">
+  {
+    excellenceData.map((dataitems) => (
+      <div class="excellence-holders-hold">
+        <a
+          href={dataitems?.catgoriesPageLinks?.pageLink?.url || "#"}
+          title={dataitems.title}
+        >
+          <div class="excellence-image">
+            <img
+              src={dataitems.featuredImage?.node?.sourceUrl || "/placeholder.jpg"}
+              alt={dataitems.featuredImage?.node?.altText || dataitems.title}
+              width="406"
+              height="405"
+              loading="lazy"
+              decoding="async" 
+            />
+          </div>
+        </a>
+
+        <div class="about-excellence">
+          <div>
+            <h6 class="fs-25">{dataitems.title}</h6>
+            <div set:html={dataitems.content} />
+          </div>
+
+          <div class="full-buttonholders">
+            <a
+              href={dataitems?.catgoriesPageLinks?.pageLink?.url || "#"}
+              class="full-button"
+              title={dataitems?.catgoriesPageLinks?.pageLink?.title || "Read More"}
+            >
+              <span>
+                {dataitems?.catgoriesPageLinks?.pageLink?.title || "Read More"}
+              </span>
+              <img
+                src="/right-icon.png"
+                alt="icon"
+                height="20"
+                width="20"
+                loading="lazy"
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .excellence-holders-hold {
+    max-width: 406px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .excellence-image {
+    max-width: 100%;
+    height: 405px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .excellence-image img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .about-excellence .fs-25 {
+    color: var(--color-231F20);
+    padding-bottom: 5px;
+  }
+
+  .about-excellence {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+    padding-top: 20px;
+  }
+
+  .grid-excell {
+    display: grid;
+    gap: 30px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: fit-content;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 1400px) {
+    .excellence-image {
+      height: 354px;
+    }
+    .about-excellence {
+      gap: 20px;
+      padding-top: 10px;
+    }
+    .excellence-image {
+      height: 290px;
+    }
+  }
+  @media (max-width: 991px) {
+    .excellence-image {
+      height: 335px;
+    }
+    .grid-excell {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .full-button img {
+      left: 30%;
+    }
+  }
+  @media (max-width: 767px) {
+    .excellence-image {
+      height: 262px;
+    }
+    .full-button img {
+      left: 45%;
+    }
+  }
+  @media (max-width: 575px) {
+    .grid-excell {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    .excellence-holders-hold {
+      max-width: 260px;
+    }
+
+    .about-excellence{
+      gap: 10px;
+    }
+  }
+</style>
