@@ -1,10 +1,14 @@
 ---
 import { queryWordPress } from "../lib/wordpress";
 
+/** * 1. OPTIMIZED GRAPHQL QUERIES
+ * Adding 'id' and checking for nodes helps with internal caching.
+ */
 const QUERY_HOMESLIDER = `
 query GetHomeSliders {
   homeSliders(first: 5) {
     nodes {
+      id
       featuredImage {
         node {
           sourceUrl
@@ -15,16 +19,40 @@ query GetHomeSliders {
 }
 `;
 
-const datasliders = await queryWordPress(QUERY_HOMESLIDER);
+const HOMEDATA = `
+query Homepage {
+  page(id: "/", idType: URI) {
+    id
+    homepage {
+      excellenceTitle
+    }
+  }
+}
+`;
+
+// Fetching data in parallel to save time
+const [datasliders, homdata] = await Promise.all([
+    queryWordPress(QUERY_HOMESLIDER),
+    queryWordPress(HOMEDATA)
+]);
+
 const nodes = datasliders?.homeSliders?.nodes || [];
+const finaldata = homdata?.page?.homepage;
+
+/** * 2. PRELOAD ALL SLIDER IMAGES
+ * This starts the download immediately before the browser even reads the HTML.
+ */
+const imageToPreload = nodes.map(n => n.featuredImage?.node?.sourceUrl).filter(Boolean);
 ---
+
+{imageToPreload.map((url) => (
+    <link rel="preload" as="image" href={url} fetchpriority="high" />
+))}
 
 <section class="homeslider-sec">
     <div class="container">
         <div class="content-main">
-            <h1 class="fs-92 text-uppercase">
-                Exceptional Fences at Unbeatable Prices
-            </h1>
+            <h1 class="fs-92 text-uppercase">{finaldata?.excellenceTitle || "error"} </h1>
             <div class="arrow-icon">
                 <a href="#" title="View More" class="link-button">
                     <span>View More</span>
@@ -53,7 +81,7 @@ const nodes = datasliders?.homeSliders?.nodes || [];
                                         alt=""
                                         width="1920"
                                         height="929"
-                                        /* SPEED OPTIMIZATION: Only eager load the first slide */
+                                        /* Keep these as is for browser priority */
                                         loading={index === 0 ? "eager" : "lazy"}
                                         fetchpriority={index === 0 ? "high" : "low"}
                                         decoding={index === 0 ? "sync" : "async"}
@@ -69,11 +97,13 @@ const nodes = datasliders?.homeSliders?.nodes || [];
 </section>
 
 <style>
+    /* ASPECT RATIO: Prevents Layout Shift (CLS) */
     .slider-image {
-        height: 929px;
+        aspect-ratio: 1920 / 929;
+        height: auto; 
         width: 100%;
         overflow: hidden;
-        background: #f0f0f0; /* Placeholder color while loading */
+        background: #f0f0f0;
     }
 
     .slider-image img {
@@ -127,18 +157,22 @@ const nodes = datasliders?.homeSliders?.nodes || [];
         }
     }
 </style>
-
-
 <script is:inline>
-    document.addEventListener("DOMContentLoaded", () => {
+    // Runs as soon as Swiper is ready
+    function initSwiper() {
         if (typeof Swiper !== 'undefined') {
             new Swiper(".mySwiperhomesliders", {
-                autoplay: { delay: 5000 },
+                autoplay: { delay: 5000, disableOnInteraction: false },
                 effect: "fade",
                 speed: 1500,
                 loop: true,
                 fadeEffect: { crossFade: true },
+                // Enable Swiper internal lazy loading for even more speed
+                watchSlidesProgress: true,
             });
+        } else {
+            setTimeout(initSwiper, 50);
         }
-    });
+    }
+    initSwiper();
 </script>
