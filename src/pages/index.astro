@@ -9,7 +9,12 @@ import Testimonial from "../components/Testimonial.astro";
 import Tipsfaq from "../components/Tipsfaq.astro";
 
 // Set Cache-Control for High Web Speed Performance
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=30');
+// Astro.response.headers.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=30');
+
+// Disable caching via headers
+Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+Astro.response.headers.set('Pragma', 'no-cache');
+Astro.response.headers.set('Expires', '0');
 
 const HOMEDATA = `
 query Homepage {
@@ -157,6 +162,8 @@ const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
                         class="aboutvideos"
                         controls
                         preload="metadata"
+                        height="590"
+                        width="953"
                         playsinline></video>
                 </div>
                 <div class="homeabout-details">
@@ -231,6 +238,7 @@ const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
             }
             .abouthome-grid {
                 display: flex;
+                align-items: center;
             }
 
             .about-video,
@@ -241,15 +249,15 @@ const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
 
             .aboutvideos {
                 width: 100%;
-                height: 100%;
+                /* height: 100%; */
                 object-fit: cover;
-                object-position: center left;
+                /* object-position: center left; */
             }
 
-            .about-video {
+            /* .about-video {
                 height: 818px;
                 overflow: hidden;
-            }
+            } */
 
             section.homeabout-sec {
                 background: var(--color-green);
@@ -300,9 +308,9 @@ const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
                     max-width: 95%;
                 }
 
-                .about-video {
+                /* .about-video {
                     height: 650px;
-                }
+                } */
 
                 section.matchbeatdata-sec {
                     padding: 15px 0px;

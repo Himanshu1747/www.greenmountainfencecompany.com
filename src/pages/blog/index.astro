@@ -25,6 +25,9 @@ query blogpage{
         altText
       }
     }
+      blogs {
+      greenMountainTitle
+    }
   }
 }
 `;
@@ -102,9 +105,7 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
             <div class="container">
                 <div class="grid-topblo">
                     <div class="title-blogsss">
-                        <h2 class="fs-40 text-green">
-                            Green Mountain Fence Blogs
-                        </h2>
+                        <h2 class="fs-40 text-green">{finaldata?.blogs?.greenMountainTitle || "error"}</h2>
                     </div>
                     <div class="serach-filters">
                         <div class="inputfilters">
@@ -129,13 +130,7 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
                             style="cursor: pointer;"
                         >
                             <p>
-                                Clear <img
-                                    src="/clear.png"
-                                    alt="clear"
-                                    height="20"
-                                    width="20"
-                                    loading="lazy"
-                                />
+                                Clear 
                             </p>
                         </div>
                     </div>
@@ -244,6 +239,13 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
 			.serach-filters p {
 				padding: 0;
 			}
+
+            .clearall p {
+    background: var(--color-green);
+    color: var(--color-white);
+    padding: 3px 10px !important;
+    border-radius: 5px;
+}
 
 			.grid-topblo {
 				display: flex;

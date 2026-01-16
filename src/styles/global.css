@@ -553,6 +553,22 @@ ul.sub-menu li a {
 
 /* BLOG END */
 
+.choose-holders ol li {
+    list-style: auto;
+}
+.choose-holders ul li {
+    list-style: disc;
+}
+.choose-holders ol,.choose-holders ul{
+    padding: 10px 0px;
+    padding-left: 30px;
+}
+
+.choose-holders li{
+    font-size: var(--fs-30);
+    font-weight: 500;
+}
+
 
 
 @media(max-width:1600px) {

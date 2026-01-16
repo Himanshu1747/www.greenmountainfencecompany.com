@@ -1,0 +1,267 @@
+---
+import { queryWordPress } from "../lib/wordpress";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+
+const CEDARPAGE = `
+query GetCedarWoodFence {
+  page(id: "pool-enclosures", idType: URI) {
+    title
+    seo {
+      canonical
+      cornerstone
+      fullHead
+    }
+    featuredImage {
+      node {
+        mediaItemUrl
+        altText
+      }
+    }
+    cedarWoodFence {
+      propertyTitle
+      descrptionmain 
+      galleryImage {
+        nodes {
+          altText
+          sourceUrl 
+          mediaDetails {
+            sizes {
+              name  
+              sourceUrl
+              width
+              height
+            }
+          }
+        }
+      }
+      mainTitlegreen
+      greendescription
+      greenimage {
+        node {
+          mediaItemUrl
+          altText
+        }
+      }
+    }
+  }
+}
+`;
+
+// Speed Tip: Data fetching remains server-side, ensuring zero JS is sent to the client for this logic.
+const pagedata = await queryWordPress(CEDARPAGE);
+const finaldata = pagedata.page;
+const seodata = finaldata?.seo || {};
+
+// Optimization: Preconnect to WordPress Media domain to speed up image discovery
+const imageDomain = finaldata?.featuredImage?.node?.mediaItemUrl 
+    ? new URL(finaldata.featuredImage.node.mediaItemUrl).origin 
+    : null;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead
+            useYoast={true}
+            canonical={seodata?.canonical || ""}
+            focuskw={seodata?.focuskw || ""}
+        />
+        {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
+        
+        {imageDomain && <link rel="preconnect" href={imageDomain} crossorigin />}
+        
+        {finaldata?.featuredImage?.node?.mediaItemUrl && (
+            <link 
+                rel="preload" 
+                as="image" 
+                href={finaldata.featuredImage.node.mediaItemUrl} 
+                fetchpriority="high" 
+            />
+        )}
+
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css"
+            media="print" 
+            onload="this.media='all'"
+        />
+        <noscript>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
+        </noscript>
+    </head>
+    <body>
+        <Header />
+
+        <section class="innerbanner-sec">
+            <img
+                src={finaldata?.featuredImage?.node?.mediaItemUrl || "error"}
+                alt={finaldata?.title || "error"}
+                title={finaldata?.title || "error"}
+                width="1920"
+                height="532"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async" 
+                class="banner-image"
+            />
+            <div class="container">
+                <div class="allabout-banner">
+                    <h1 class="fs-80">{finaldata?.title || "error"}</h1>
+                </div>
+            </div>
+        </section>
+
+        <section class="property-sec">
+            <div class="container">
+                <div class="property-holders">
+                    <h2 class="fs-60">
+                        {finaldata?.cedarWoodFence?.propertyTitle || "error"}
+                    </h2>
+                    <div
+                        set:html={finaldata?.cedarWoodFence?.descrptionmain ||
+                            "error"}
+                    />
+                </div>
+            </div>
+        </section>
+
+        <section class="popular-sec">
+            <img
+                src="/overlay-image-2.png"
+                alt=""
+                width="1920"
+                height="466"
+                loading="lazy"
+                decoding="async"
+                class="overlays-image"
+            />
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-7">
+                        <div class="choose-holders">
+                            <h3 class="fs-40">
+                                {
+                                    finaldata?.cedarWoodFence?.mainTitlegreen ||
+                                        "error"
+                                }
+                            </h3>
+                            <div
+                                class="edior-data"
+                                set:html={finaldata?.cedarWoodFence
+                                    ?.greendescription || "error"}
+                            />
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="image-popular">
+                            <img
+                                src={finaldata?.cedarWoodFence?.greenimage?.node
+                                    ?.mediaItemUrl || "error"}
+                                alt=""
+                                width="671"
+                                height="587"
+                                loading="lazy"
+                                decoding="async"
+                                class="lazyload"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="gallery-sec">
+            <div class="container">
+                <div class="center-data">
+                    <h3 class="fs-40">{finaldata?.title || "error"}</h3>
+                </div>
+                <div class="gallery-grids">
+                    {
+                        finaldata?.cedarWoodFence?.galleryImage?.nodes?.map(
+                            (image) => {
+                                const largeSize =
+                                    image.mediaDetails?.sizes?.find(
+                                        (size) => size.name === "large",
+                                    );
+                                const displayUrl =
+                                    largeSize?.sourceUrl || image.sourceUrl;
+
+                                const displayWidth = largeSize?.width || "1024";
+                                const displayHeight =
+                                    largeSize?.height || "576";
+
+                                return (
+                                    <div class="gallery-image">
+                                        <a
+                                            href={image.sourceUrl}
+                                            class="glightbox"
+                                        >
+                                            <img
+                                                src={displayUrl}
+                                                loading="lazy"
+                                                width={displayWidth}
+                                                height={displayHeight}
+                                                alt={
+                                                    image.altText ||
+                                                    "Cedar Wood Fence Gallery Image"
+                                                }
+                                            />
+                                        </a>
+                                    </div>
+                                );
+                            },
+                        )
+                    }
+                </div>
+            </div>
+        </section>
+
+        <Footer />
+
+        <style>
+            /* CSS remains unchanged as requested */
+            .property-holders .fs-60 { max-width: 1035px; width: 100%; }
+            .property-sec { padding: 75px 0px; }
+            .image-popular { max-width: 671px; width: 100%; margin: 0 auto; }
+            .choose-holders { max-width: 865px; width: 100%; }
+            section.popular-sec { padding: 75px 0px; position: relative; z-index: 1; overflow: hidden; background: var(--color-green); color: var(--color-white); }
+            .edior-data { padding-top: 25px; }
+            .choose-holders .fs-40, .center-data .fs-40 { font-weight: 700; }
+            .center-data { max-width: fit-content; margin: 0 auto; width: 100%; text-align: center; }
+            .gallery-image { height: 305px; overflow: hidden; max-width: 388px; width: 100%; margin: 0 auto; }
+            .gallery-image img { height: 100%; width: 100%; object-fit: cover; object-position: center; }
+            .gallery-grids { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); padding-top: 70px; }
+            .gslide-external-controls { margin-top: 10px; }
+            .gallery-image a { display: block; height: 100%; width: 100%; }
+            .gallery-grids .gallery-image:nth-child(1) { grid-column: span 2; grid-row: span 2; height: 626px; width: 100%; max-width: 100%; }
+            section.gallery-sec { padding: 85px 0px; }
+            @media (max-width: 1600px) { section.property-sec, section.popular-sec, section.gallery-sec { padding: 60px 0px; } .choose-holders { max-width: 90%; } .gallery-grids { padding-top: 50px; } }
+            @media (max-width: 1400px) { section.property-sec, section.popular-sec, section.gallery-sec { padding: 40px 0px; } .gallery-grids { padding-top: 30px; } }
+            @media (max-width: 1199px) { .gallery-grids { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+            @media (max-width: 991px) { .gallery-grids .gallery-image:nth-child(1) { grid-column: span 1; grid-row: span 1; } .gallery-image, .gallery-grids .gallery-image:nth-child(1) { height: 215px; max-width: 388px; width: 100%; margin: 0 auto; } }
+            @media (max-width: 767px) { .choose-holders { max-width: 100%; } .gallery-grids { grid-template-columns: repeat(2, minmax(0, 1fr)); } section.property-sec, section.popular-sec, section.gallery-sec { padding: 30px 0px; } }
+        </style>
+
+        <script is:inline src="https://cdn.jsdelivr.net/gh/mcstudios/glightbox/dist/js/glightbox.min.js" defer></script>
+        <script is:inline>
+            // Optimization: Initialize only when needed or after window load to avoid blocking main thread
+            window.addEventListener('load', () => {
+                const initLightbox = () => {
+                    if (typeof GLightbox !== 'undefined') {
+                        GLightbox({
+                            selector: ".glightbox",
+                            touchNavigation: true,
+                            loop: true,
+                            svg: {
+                                share: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>',
+                            },
+                        });
+                    }
+                };
+                initLightbox();
+                document.addEventListener("astro:after-swap", initLightbox);
+            });
+        </script>
+    </body>
+</html>
