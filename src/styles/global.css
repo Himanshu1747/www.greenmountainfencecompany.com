@@ -43,7 +43,7 @@ a {
 p,
 .about-profesional li,
 .bootm-data li,
-.post-content li {
+.post-content li,.choose-holders li {
     font-size: 20px;
     font-style: normal;
     font-weight: 400;
@@ -538,7 +538,7 @@ section.innerbanner-sec {
     list-style: auto;
 }
 
-.post-content li {
+.post-content li,.choose-holders li {
     padding-bottom: 5px;
 }
 
@@ -564,10 +564,10 @@ ul.sub-menu li a {
     padding-left: 30px;
 }
 
-.choose-holders li{
+/* .choose-holders li{
     font-size: var(--fs-30);
     font-weight: 500;
-}
+} */
 
 
 
@@ -596,7 +596,7 @@ ul.sub-menu li a {
     p,
     .about-profesional li,
     .bootm-data li,
-    .post-content li {
+    .post-content li,.choose-holders li {
         font-size: 18px;
         line-height: 28px;
     }
@@ -633,7 +633,7 @@ ul.sub-menu li a {
     p,
     .about-profesional li,
     .bootm-data li,
-    .post-content li {
+    .post-content li,.choose-holders li {
         font-size: 16px;
         line-height: 26px;
     }
