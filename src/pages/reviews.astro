@@ -37,56 +37,98 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
             focuskw={seodata?.focuskw || ""}
         />
         {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
-        {bannerUrl && (
-            <link rel="preload" as="image" href={bannerUrl} fetchpriority="high" />
-        )}
     </head>
+    
     <body>
         <Header />
 
-        <section class="innerbanner-sec">
-           <img
-                src={bannerUrl || ""}
-                alt={finaldata?.featuredImage?.node?.altText || finaldata?.title || ""}
-                title={finaldata?.title || ""}
-                width="1920"
-                height="532"
-                loading="eager"
-                fetchpriority="high"
-                decoding="sync"
-                class="banner-image"
-            />
-            <div class="container">
-                <div class="allabout-banner">
-                    <h1 class="fs-80">{finaldata?.title || ""}</h1>
+        <main>
+            <section class="innerbanner-sec">
+               <img
+                    src={bannerUrl || ""}
+                    alt={finaldata?.featuredImage?.node?.altText || finaldata?.title || ""}
+                    title={finaldata?.title || ""}
+                    width="1920"
+                    height="532"
+                    class="banner-image"
+                />
+                <div class="container">
+                    <div class="allabout-banner">
+                        <h1 class="fs-80">{finaldata?.title || ""}</h1>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section class="review-data">
-            <div class="container">
-                <div
-                    id="indexReviewsWidget"
-                    data-merchant="51664"
-                    data-header-adjective="satisfied"
-                    data-header-noun="customers"
-                    data-write-disable="false"
-                >
+            <section class="review-data">
+                <div class="container">
+                    <div
+                        id="indexReviewsWidget"
+                        data-merchant="51664"
+                        data-header-adjective="satisfied"
+                        data-header-noun="customers"
+                        data-write-disable="false"
+                    >
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </main>
 
-        <script 
-            is:inline 
-            async 
-            src="https://survlywidget.firebaseapp.com/static/js/index.js"
-            onload="if(typeof renderApp === 'function'){ renderApp(); }"
-        ></script>
+        <script is:inline>
+          function reloadWidgetScript() {
+            const container = document.getElementById('indexReviewsWidget');
+            if (!container) return;
 
-        <style>
+            // 1. Clear the container to remove the "giant logo" mess
+            container.innerHTML = "";
+
+            // 2. Remove any existing instances of the script to force a fresh load
+            const oldScript = document.getElementById('survly-script');
+            if (oldScript) oldScript.remove();
+
+            // 3. Create a brand new script element
+            const newScript = document.createElement('script');
+            newScript.id = 'survly-script';
+            newScript.src = "https://survlywidget.firebaseapp.com/static/js/index.js";
+            newScript.async = true;
+
+            // 4. When the script loads, trigger the render
+            newScript.onload = () => {
+                if (typeof renderApp === 'function') {
+                    renderApp();
+                    console.log("Widget script and CSS loaded fresh.");
+                }
+            };
+
+            document.body.appendChild(newScript);
+          }
+
+          // Initial load
+          reloadWidgetScript();
+
+          // Re-load every time the user navigates back to this page
+          document.addEventListener('astro:page-load', reloadWidgetScript);
+        </script>
+
+        <style is:global>
+            /* Critical safety CSS to prevent the "Giant Icon" mess if styles lag */
+            #indexReviewsWidget img {
+                max-width: 50px !important; 
+                height: auto !important;
+            }
+            #indexReviewsWidget .review-item { 
+                margin-bottom: 20px;
+                border-bottom: 1px solid #eee;
+            }
+            
             section.review-data {
                 padding: 40px 0px;
-                min-height: 400px; /* Prevents layout shift while widget loads */
+                min-height: 600px;
+            }
+            .banner-image {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 1920/532;
+                object-fit: cover;
             }
         </style>
     </body>

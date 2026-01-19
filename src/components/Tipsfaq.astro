@@ -190,20 +190,31 @@ const finaldata = dataget.faqs.nodes;
     }
 </style>
 
-<script>
-    $(document).ready(function () {
-        $(".grid-faq").click(function () {
-            let $faqHolder = $(this).closest(".faq-holders"); // current faq-holder
+<script is:inline>
+    function initFaq() {
+        // 1. Unbind previous clicks to prevent double-firing
+        $(".grid-faq").off("click").on("click", function () {
+            let $faqHolder = $(this).closest(".faq-holders");
 
-            // Close all
-            $(".faq-holders .bootm-data").slideUp();
-            $(".grid-faq").removeClass("active");
+            // Close all other items
+            $(".faq-holders .bootm-data").not($faqHolder.find(".bootm-data")).slideUp();
+            $(".grid-faq").not(this).removeClass("active");
 
-            // Toggle current
-            if (!$faqHolder.find(".bootm-data").is(":visible")) {
-                $faqHolder.find(".bootm-data").slideDown();
+            // Toggle current item
+            const $content = $faqHolder.find(".bootm-data");
+            if (!$content.is(":visible")) {
+                $content.slideDown();
                 $(this).addClass("active");
+            } else {
+                $content.slideUp();
+                $(this).removeClass("active");
             }
         });
-    });
+    }
+
+    // Run on first load
+    initFaq();
+
+    // Run every time Astro completes a page transition
+    document.addEventListener("astro:page-load", initFaq);
 </script>

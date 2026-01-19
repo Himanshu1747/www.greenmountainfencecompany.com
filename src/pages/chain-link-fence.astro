@@ -243,25 +243,40 @@ const imageDomain = finaldata?.featuredImage?.node?.mediaItemUrl
             @media (max-width: 767px) { .choose-holders { max-width: 100%; } .gallery-grids { grid-template-columns: repeat(2, minmax(0, 1fr)); } section.property-sec, section.popular-sec, section.gallery-sec { padding: 30px 0px; } }
         </style>
 
-        <script is:inline src="https://cdn.jsdelivr.net/gh/mcstudios/glightbox/dist/js/glightbox.min.js" defer></script>
-        <script is:inline>
-            // Optimization: Initialize only when needed or after window load to avoid blocking main thread
-            window.addEventListener('load', () => {
-                const initLightbox = () => {
-                    if (typeof GLightbox !== 'undefined') {
-                        GLightbox({
-                            selector: ".glightbox",
-                            touchNavigation: true,
-                            loop: true,
-                            svg: {
-                                share: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>',
-                            },
-                        });
-                    }
-                };
-                initLightbox();
-                document.addEventListener("astro:after-swap", initLightbox);
+       <script
+    is:inline
+    src="https://cdn.jsdelivr.net/gh/mcstudios/glightbox/dist/js/glightbox.min.js"
+></script>
+
+<script is:inline>
+    // Create a variable outside to keep track of the instance
+    let myLightbox;
+
+    const initLightbox = () => {
+        // 1. If an old lightbox exists, destroy it to prevent memory leaks/bugs
+        if (myLightbox) {
+            myLightbox.destroy();
+        }
+
+        // 2. Only initialize if the library is loaded and the class exists on the page
+        if (typeof GLightbox === 'function' && document.querySelector('.glightbox')) {
+            myLightbox = GLightbox({
+                selector: ".glightbox",
+                touchNavigation: true,
+                loop: true,
+                svg: {
+                    share: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>',
+                },
             });
-        </script>
+            console.log("GLightbox Initialized");
+        }
+    };
+
+    // Run on every page load (first time + transitions)
+    document.addEventListener("astro:page-load", initLightbox);
+
+    // Initial run for the very first page visit
+    initLightbox();
+</script>
     </body>
 </html>
