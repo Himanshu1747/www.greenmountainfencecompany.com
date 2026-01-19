@@ -1,0 +1,114 @@
+<div class="contactform-holders">
+    <div class="centerdata-form">
+        <h4 class="fs-30">Connect With Us</h4>
+        <p>
+            We'd love to hear from you. Fill out the form below to get in touch.
+        </p>
+    </div>
+    <form action="#">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="univers-input">
+                    <input type="text" placeholder="First name" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="univers-input">
+                    <input type="text" placeholder="Last name" />
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="univers-input">
+                    <input type="email" placeholder="Email" />
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="univers-input">
+                    <textarea placeholder="Your Messages" rows="5"></textarea>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="submit-button">
+                    <button type="submit" class="submite-button">Submit</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .univers-input input,
+    .univers-input textarea {
+        border: 2px solid rgba(0, 0, 0, 0.16);
+        background: var(--color-white);
+        padding: 0px 15px;
+    }
+    .univers-input textarea {
+        padding-top: 10px;
+    }
+
+    .univers-input input::-webkit-input-placeholder,
+    .univers-input textarea::-webkit-input-placeholder {
+        color: rgba(0, 0, 0, 0.36);
+        font-size: 15px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 20px;
+    }
+    .univers-input input {
+        height: 52px;
+    }
+    .univers-input {
+        margin-bottom: 25px;
+    }
+    .centerdata-form {
+        max-width: fit-content;
+        margin: 0 auto;
+        text-align: center;
+        padding-bottom: 55px;
+        width: 100%;
+    }
+
+    .submite-button {
+        color: var(--color-white);
+        font-size: 15px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 20px;
+        background: var(--color-green);
+        display: block;
+        padding: 12px 51px;
+        border-radius: 40px;
+        border: none;
+        transition: 0.3s ease-in;
+    }
+
+    .submite-button:hover {
+        background: var(--color-white);
+        color: var(--color-green);
+    }
+
+    .about-contact {
+        max-width: 585px;
+        width: 100%;
+    }
+
+    @media (max-width: 1400px) {
+        .univers-input input {
+            height: 42px;
+        }
+        .submite-button {
+            font-size: 15px;
+            padding: 10px 40px;
+        }
+        .centerdata-form {
+            padding-bottom: 30px;
+        }
+        .univers-input {
+            margin-bottom: 15px;
+        }
+        .centerdata-form .fs-30 {
+            font-size: 25px;
+        }
+    }
+</style>

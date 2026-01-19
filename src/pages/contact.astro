@@ -1,0 +1,249 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import { queryWordPress } from "../lib/wordpress";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Testimonial from "../components/Testimonial.astro";
+import ContactForm from "../components/ContactForm";
+
+const CONTACTQUERY = `
+query Contactus {
+  page(id: "contact", idType: URI) {
+    title
+     seo {
+       canonical
+       cornerstone
+       fullHead
+     }
+    contactUs{
+      getConnectTittle
+      contactFormTitle
+      contactDetails{
+        iconImage{
+          node {
+        mediaItemUrl
+        altText
+      }
+        }
+        detailsContacts
+      }
+         backgroundImage{
+         node {
+        mediaItemUrl
+        altText
+      }
+      }
+    }
+    featuredImage {
+      node {
+        mediaItemUrl
+        altText
+        fileSize
+      }
+    }
+
+  }
+}
+
+`;
+
+const pagedata = await queryWordPress(CONTACTQUERY);
+const finaldata = pagedata.page;
+const seodata = finaldata?.seo || {};
+const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead
+            useYoast={true}
+            canonical={seodata?.canonical || ""}
+            focuskw={seodata?.focuskw || ""}
+        />
+        {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
+        {
+            bannerUrl && (
+                <link
+                    rel="preload"
+                    as="image"
+                    href={bannerUrl}
+                    fetchpriority="high"
+                />
+            )
+        }
+    </head>
+    <body>
+        <Header />
+
+        <section class="innerbanner-sec">
+            <img
+                src={bannerUrl || "/fallback.jpg"}
+                alt={finaldata?.title || "error"}
+                width="1920"
+                height="532"
+                loading="eager"
+                fetchpriority="high"
+                decoding="sync"
+                class="banner-image"
+            />
+            <div class="container">
+                <div class="allabout-banner">
+                    <h1 class="fs-80">{finaldata?.title || "error"}</h1>
+                </div>
+            </div>
+        </section>
+
+        <section class="getconnect-sec">
+            <div class="container">
+                <div class="center-data">
+                    <h2 class="fs-40 text-green">
+                        {finaldata?.contactUs?.getConnectTittle || "errror"}
+                    </h2>
+                </div>
+                <div class="grid-details">
+                    {
+                        finaldata.contactUs.contactDetails.map((items) => {
+                            return (
+                                <div class="details-holders">
+                                    <img
+                                        src={
+                                            items?.iconImage?.node
+                                                ?.mediaItemUrl || "error"
+                                        }
+                                        alt=""
+                                        class="icon-image"
+                                        loading="lazy"
+                                    />
+                                    <div
+                                        set:html={
+                                            items?.detailsContacts || "error"
+                                        }
+                                    />
+                                </div>
+                            );
+                        })
+                    }
+                </div>
+            </div>
+        </section>
+        <section class="contact-sec">
+            <img
+                src={finaldata?.contactUs?.backgroundImage?.node
+                    ?.mediaItemUrl || "errror"}
+                alt="image"
+                width="1920"
+                height="960"
+                loading="lazy"
+                class="banner-image"
+            />
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <div class="about-contact">
+                            <h2 class="fs-60">
+                                {
+                                    finaldata?.contactUs?.contactFormTitle ||
+                                        "errror"
+                                }
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="main-formholders">
+                            <ContactForm client:load />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <Testimonial />
+
+        <Footer />
+
+        <style>
+            .details-holders {
+                max-width: 365px;
+                width: 100%;
+                text-align: center;
+                width: 100%;
+            }
+            .icon-image {
+                max-width: fit-content;
+                margin: 0 auto 20px;
+            }
+            .center-data {
+                max-width: fit-content;
+                margin: 0 auto;
+                text-align: center;
+                width: 100%;
+            }
+
+            .grid-details {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                column-gap: 30px;
+                row-gap: 30px;
+                padding-top: 75px;
+            }
+            section.getconnect-sec {
+                padding: 75px 0px;
+            }
+            .details-holders a {
+                word-break: break-word;
+                overflow-wrap: break-word;
+            }
+            section.contact-sec {
+                position: relative;
+                z-index: 1;
+                width: 100%;
+                overflow: hidden;
+                color: var(--color-white);
+                padding: 55px 0px;
+            }
+            section.contact-sec .banner-image {
+                filter: brightness(0.5);
+            }
+
+            .about-contact {
+                max-width: 587px;
+                width: 100%;
+            }
+            @media (max-width: 1600px) {
+                .icon-image {
+                    max-width: 40px;
+                }
+                .details-holders {
+                    max-width: 295px;
+                }
+                section.getconnect-sec {
+                    padding: 60px 0px;
+                }
+                .grid-details {
+                    padding-top: 50px;
+                }
+            }
+            @media (max-width: 1400px) {
+                section.getconnect-sec {
+                    padding: 40px 0px;
+                }
+
+                .grid-details {
+                    padding-top: 30px;
+                    gap: 30px;
+                }
+                section.contact-sec {
+                    padding: 40px 0px;
+                }
+            }
+            @media (max-width: 991px) {
+                .about-contact {
+                    text-align: center;
+                    max-width: 100%;
+                    margin: 0 auto;
+                }
+            }
+        </style>
+    </body>
+</html>

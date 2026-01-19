@@ -7,6 +7,7 @@ import Header from "../components/Header.astro";
 import Homeslider from "../components/Homeslider.astro";
 import Testimonial from "../components/Testimonial.astro";
 import Tipsfaq from "../components/Tipsfaq.astro";
+import ContactForm from "../components/ContactForm";
 
 // Set Cache-Control for High Web Speed Performance
 // Astro.response.headers.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=30');
@@ -204,6 +205,7 @@ const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
         </section>
 
         <Testimonial />
+
         <Tipsfaq />
 
         <Footer />

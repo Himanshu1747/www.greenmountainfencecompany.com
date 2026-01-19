@@ -412,3 +412,77 @@ query GetCedarWoodFence {
     }
   }
 }
+
+query Contactus {
+  page(id: "contact", idType: URI) {
+    title
+    seo {
+      canonical
+      cornerstone
+      fullHead
+    }
+    contactUs{
+      getConnectTittle
+      contactFormTitle
+        connectUsDesc
+      contactDetails{
+        iconImage{
+          node {
+        mediaItemUrl
+        altText
+      }
+        }
+        detailsContacts
+      }
+      backgroundImage{
+         node {
+        mediaItemUrl
+        altText
+      }
+      }
+    }
+    featuredImage {
+      node {
+        mediaItemUrl
+        altText
+        fileSize
+      }
+    }
+
+  }
+}
+
+
+query Estimatespage {
+  page(id: "request-a-free-estimate-form", idType: URI) {
+    title
+    seo {
+      canonical
+      cornerstone
+      fullHead
+    }
+    featuredImage {
+      node {
+        mediaItemUrl
+        altText
+        fileSize
+      }
+    }
+    requestAEstimate{
+      formTitle
+      formDesc
+    }
+
+  }
+}
+
+
+
+
+<!-- NODE MAILER STEP DATA  -->
+
+Set 1: npx astro add react node
+Set 2: npm install nodemailer
+Set 3:PUTL ALL SMTP DETAILS IN ENV FILE
+Set 4:  src/actions/index.ts
+Set 5: src/components/ContactForm.tsx
