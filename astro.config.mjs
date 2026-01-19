@@ -18,15 +18,25 @@
 // });
 
 
+// import { defineConfig } from 'astro/config';
+// import mdx from '@astrojs/mdx';
+// import sitemap from '@astrojs/sitemap';
+// import react from '@astrojs/react';
+// import vercel from '@astrojs/vercel/serverless'; // This is the key change
+
+// export default defineConfig({
+//   site: 'https://greenmountainfencecompany.vercel.app',
+//   integrations: [mdx(), sitemap(), react()],
+//   output: 'server', // This allows your React components to handle dynamic logic
+//   adapter: vercel(),
+// });
+
 import { defineConfig } from 'astro/config';
-import mdx from '@astrojs/mdx';
-import sitemap from '@astrojs/sitemap';
 import react from '@astrojs/react';
-import vercel from '@astrojs/vercel/serverless'; // This is the key change
+import netlify from '@astrojs/netlify'; // This must be netlify now
 
 export default defineConfig({
-  site: 'https://greenmountainfencecompany.vercel.app',
-  integrations: [mdx(), sitemap(), react()],
-  output: 'server', // This allows your React components to handle dynamic logic
-  adapter: vercel(),
+  output: 'server',
+  adapter: netlify(),
+  integrations: [react()],
 });
