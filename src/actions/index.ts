@@ -66,7 +66,6 @@ export const server = {
         await transporter.sendMail(userMail);
         return { success: true };
       } catch (err: any) {
-        console.error("THANK YOU EMAIL ERROR:", err);
         throw new Error(`Failed to send thank you email: ${err.message}`);
       }
     },
@@ -77,29 +76,45 @@ export const server = {
       firstname: z.string(),
       lastname: z.string(),
       email: z.string().email(),
-      message: z.string().optional(),
-      streetAddress: z.string().optional(),
-      townCity: z.string().optional(),
-      phone: z.string().optional(),
-      product: z.string().optional(),
-      hearAboutUs: z.string().optional(),
-      promoCode: z.string().optional(),
+      message: z.string().optional().or(z.literal('')),
+      streetAddress: z.string().optional().or(z.literal('')),
+      townCity: z.string().optional().or(z.literal('')),
+      phone: z.string().optional().or(z.literal('')),
+      product: z.string().optional().or(z.literal('')),
+      hearAboutUs: z.string().optional().or(z.literal('')),
+      // Allow empty string so it doesn't fail validation
+      promoCode: z.string().optional().or(z.literal('')),
     }),
     handler: async (input) => {
       const transporter = getTransporter();
       const adminMail = {
-        from: `"Estimate Request" <${import.meta.env.SMTP_USER}>`,
+        from: `Website Estimate <${import.meta.env.SMTP_USER}>`,
         to: "tech@ogrelogic.com",
         replyTo: input.email,
         subject: `Estimate Request: ${input.firstname} ${input.lastname}`,
-        text: `Name: ${input.firstname} ${input.lastname}\nEmail: ${input.email}\nPhone: ${input.phone}\nAddress: ${input.streetAddress}, ${input.townCity}\nProduct: ${input.product}\nMessage: ${input.message}`,
+        // Separated Street and Town, and added Promo Code
+        text: `New Estimate Request:
+---------------------------
+Name: ${input.firstname} ${input.lastname}
+Email: ${input.email}
+Phone: ${input.phone || 'N/A'}
+
+Address:
+Street: ${input.streetAddress || 'N/A'}
+Town/City: ${input.townCity || 'N/A'}
+
+Product Interest: ${input.product || 'N/A'}
+How they heard about us: ${input.hearAboutUs || 'N/A'}
+Promo Code: ${input.promoCode || 'No code entered'}
+
+Message:
+${input.message || 'No message provided'}`,
       };
 
       try {
         await transporter.sendMail(adminMail);
         return { success: true };
       } catch (err: any) {
-        console.error("ESTIMATE ERROR:", err);
         throw new Error(`Failed to send estimate email: ${err.message}`);
       }
     },
@@ -109,22 +124,21 @@ export const server = {
     input: z.object({
       firstname: z.string(),
       email: z.string().email(),
-      product: z.string().optional(),
+      product: z.string().optional().or(z.literal('')),
     }),
     handler: async (input) => {
       const transporter = getTransporter();
       const userMail = {
         from: `"Green Mountain Fence" <${import.meta.env.SMTP_USER}>`,
         to: input.email,
-        subject: "Your Estimate Request",
-        text: `Hi ${input.firstname},\n\nThank you for your interest in ${input.product}. We will contact you soon.`,
+        subject: `Hi ${input.firstname}`,
+        text: `Hi ${input.firstname},\n\nThank you for your interest in ${input.product || 'our products'}. We will contact you soon.`,
       };
 
       try {
         await transporter.sendMail(userMail);
         return { success: true };
       } catch (err: any) {
-        console.error("ESTIMATE THANK YOU ERROR:", err);
         throw new Error(`Failed to send estimate thank you: ${err.message}`);
       }
     },
