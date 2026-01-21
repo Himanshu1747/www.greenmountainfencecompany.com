@@ -6,8 +6,9 @@ import Footer from "../../components/Footer.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import Header from "../../components/Header.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import ContactForm from "../../components/ContactForm";
 
-/** * SPEED OPTIMIZATION: 
+/** * SPEED OPTIMIZATION:
  * Combined parallel fetching for all page and blog data.
  */
 const BLOGQUERY = `
@@ -54,7 +55,7 @@ query MainBlog {
 
 const [pagedata, allblogpost] = await Promise.all([
     queryWordPress(BLOGQUERY),
-    queryWordPress(MAIN_BLOGDATA)
+    queryWordPress(MAIN_BLOGDATA),
 ]);
 
 const finaldata = pagedata?.page || {};
@@ -62,6 +63,32 @@ const seodata = finaldata?.seo || {};
 const alldatahere = allblogpost?.posts?.nodes || [];
 
 const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
+
+const CONTACTQUERY = `
+query Contactus {
+  page(id: "contact", idType: URI) {
+    contactUs{
+         backgroundImage{
+         node {
+        mediaItemUrl
+        altText
+      }
+      }
+    }
+
+  }
+}
+
+`;
+
+const pagedatas = await queryWordPress(CONTACTQUERY);
+
+// FIX 1: Use pagedatas (the result of the contact query)
+// FIX 2: Check for existence carefully
+const contactData = pagedatas?.page?.contactUs || {};
+
+// FIX 3: Get the specific background image URL
+const contactBannerUrl = contactData?.backgroundImage?.node?.mediaItemUrl;
 ---
 
 <!doctype html>
@@ -74,13 +101,20 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
         />
         {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
 
-        {bannerUrl && (
-            <link rel="preload" as="image" href={bannerUrl} fetchpriority="high" />
-        )}
+        {
+            bannerUrl && (
+                <link
+                    rel="preload"
+                    as="image"
+                    href={bannerUrl}
+                    fetchpriority="high"
+                />
+            )
+        }
     </head>
     <body>
         <Header />
-        
+
         <section class="innerbanner-sec">
             <img
                 src={bannerUrl || "/fallback.jpg"}
@@ -104,7 +138,9 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
             <div class="container">
                 <div class="grid-topblo">
                     <div class="title-blogsss">
-                        <h2 class="fs-40 text-green">{finaldata?.blogs?.greenMountainTitle || "error"}</h2>
+                        <h2 class="fs-40 text-green">
+                            {finaldata?.blogs?.greenMountainTitle || "error"}
+                        </h2>
                     </div>
                     <div class="serach-filters">
                         <div class="inputfilters">
@@ -128,9 +164,7 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
                             id="clearSearch"
                             style="cursor: pointer;"
                         >
-                            <p>
-                                Clear 
-                            </p>
+                            <p>Clear</p>
                         </div>
                     </div>
                 </div>
@@ -138,7 +172,8 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
                 <div class="blog-grids" id="blogContainer">
                     {
                         alldatahere.map((blogitems, index) => {
-                            const postImg = blogitems?.featuredImage?.node?.sourceUrl;
+                            const postImg =
+                                blogitems?.featuredImage?.node?.sourceUrl;
                             return (
                                 <div
                                     class="blog-holders"
@@ -151,11 +186,16 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
                                     >
                                         <div class="main-ima">
                                             <img
-                                                src={postImg || "/placeholder.jpg"}
+                                                src={
+                                                    postImg ||
+                                                    "/placeholder.jpg"
+                                                }
                                                 alt={blogitems.title || ""}
                                                 height="347"
                                                 width="495"
-                                                loading={index < 3 ? "eager" : "lazy"}
+                                                loading={
+                                                    index < 3 ? "eager" : "lazy"
+                                                }
                                                 decoding="async"
                                                 style="object-fit: cover;"
                                             />
@@ -164,16 +204,24 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
                                     <div class="bootm-data">
                                         <p class="date">
                                             {blogitems?.date
-                                                ? new Date(blogitems.date).toLocaleDateString("en-GB")
+                                                ? new Date(
+                                                      blogitems.date,
+                                                  ).toLocaleDateString("en-GB")
                                                 : ""}
                                         </p>
-                                        <a href={`/blog/${blogitems.slug}`}><h6 class="fs-20">
-                                            {blogitems.title || ""}
-                                        </h6></a>
-                                        <div set:html={blogitems?.excerpt || ""} />
+                                        <a href={`/blog/${blogitems.slug}`}>
+                                            <h6 class="fs-20">
+                                                {blogitems.title || ""}
+                                            </h6>
+                                        </a>
+                                        <div
+                                            set:html={blogitems?.excerpt || ""}
+                                        />
                                         <div class="grid-readmore">
                                             <div class="read-button">
-                                                <a href={`/blog/${blogitems.slug}`}>
+                                                <a
+                                                    href={`/blog/${blogitems.slug}`}
+                                                >
                                                     Read More »
                                                 </a>
                                             </div>
@@ -203,6 +251,22 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
                     style="display: none; text-align: center; padding: 50px;"
                 >
                     <p>No blogs found matching your search.</p>
+                </div>
+            </div>
+        </section>
+        <section class="contact-sec blog-contacts">
+            <img
+                src={contactBannerUrl || "/fallback.jpg"}
+                alt={contactData?.backgroundImage?.node?.altText ||
+                    "Contact Background"}
+                width="1920"
+                height="960"
+                loading="lazy"
+                class="banner-image"
+            />
+            <div class="container">
+                <div class="main-formholders blog">
+                    <ContactForm client:load />
                 </div>
             </div>
         </section>
@@ -261,6 +325,17 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
                 height: 20px;
                 width: 20px;
             }
+            section.contact-sec.blog-contacts {
+                position: relative;
+                color: var(--color-white);
+                padding: 50px 0px;
+            }
+            section.contact-sec.blog-contacts img.banner-image {
+                filter: brightness(0.4);
+            }
+            .sharenow {
+    padding-right: 10px;
+}
             @media (max-width: 1600px) {
                 section.blogmain-sec {
                     padding: 60px 0px;
@@ -273,6 +348,9 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
                 section.blogmain-sec {
                     padding: 50px 0px;
                 }
+                section.contact-sec.blog-contacts {
+                padding: 30px 0px;
+            }
             }
             @media (max-width: 991px) {
                 .grid-topblo {
@@ -280,81 +358,93 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
                     flex-direction: column;
                 }
             }
-        
         </style>
 
         <script>
-    function initBlogLogic() {
-        const shareButtons = document.querySelectorAll(".share-button");
+            function initBlogLogic() {
+                const shareButtons = document.querySelectorAll(".share-button");
 
-        shareButtons.forEach((button) => {
-            button.replaceWith(button.cloneNode(true));
-        });
+                shareButtons.forEach((button) => {
+                    button.replaceWith(button.cloneNode(true));
+                });
 
-        document.querySelectorAll(".share-button").forEach((button) => {
-            button.addEventListener("click", async () => {
-                const title = button.getAttribute("data-title");
-                const url = window.location.origin + button.getAttribute("data-url");
+                document.querySelectorAll(".share-button").forEach((button) => {
+                    button.addEventListener("click", async () => {
+                        const title = button.getAttribute("data-title");
+                        const url =
+                            window.location.origin +
+                            button.getAttribute("data-url");
 
-                if (navigator.share) {
-                    try {
-                        await navigator.share({
-                            title: title,
-                            text: `Check this out: ${title}`,
-                            url: url,
-                        });
-                    } catch (err) {
-                        console.log("Error sharing:", err);
-                    }
-                } else {
-                    try {
-                        await navigator.clipboard.writeText(url);
-                        alert("Link copied to clipboard!");
-                    } catch (err) {
-                        console.error("Failed to copy: ", err);
+                        if (navigator.share) {
+                            try {
+                                await navigator.share({
+                                    title: title,
+                                    text: `Check this out: ${title}`,
+                                    url: url,
+                                });
+                            } catch (err) {
+                                console.log("Error sharing:", err);
+                            }
+                        } else {
+                            try {
+                                await navigator.clipboard.writeText(url);
+                                alert("Link copied to clipboard!");
+                            } catch (err) {
+                                console.error("Failed to copy: ", err);
+                            }
+                        }
+                    });
+                });
+
+                const searchInput = document.getElementById(
+                    "blogSearch",
+                ) as HTMLInputElement;
+                const clearBtn = document.getElementById("clearSearch");
+                const blogCards = document.querySelectorAll(".blog-holders");
+                const noResults = document.getElementById("noResults");
+
+                function filterBlogs() {
+                    if (!searchInput) return;
+                    const searchTerm = searchInput.value.toLowerCase().trim();
+                    let hasVisibleCards = false;
+
+                    blogCards.forEach((card) => {
+                        const title =
+                            card.getAttribute("data-title")?.toLowerCase() ||
+                            "";
+                        const content =
+                            card.getAttribute("data-content")?.toLowerCase() ||
+                            "";
+                        if (
+                            title.includes(searchTerm) ||
+                            content.includes(searchTerm)
+                        ) {
+                            (card as HTMLElement).style.display = "block";
+                            hasVisibleCards = true;
+                        } else {
+                            (card as HTMLElement).style.display = "none";
+                        }
+                    });
+
+                    if (noResults) {
+                        noResults.style.display = hasVisibleCards
+                            ? "none"
+                            : "block";
                     }
                 }
-            });
-        });
 
-        const searchInput = document.getElementById("blogSearch") as HTMLInputElement;
-        const clearBtn = document.getElementById("clearSearch");
-        const blogCards = document.querySelectorAll(".blog-holders");
-        const noResults = document.getElementById("noResults");
+                searchInput?.addEventListener("input", filterBlogs);
 
-        function filterBlogs() {
-            if (!searchInput) return;
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            let hasVisibleCards = false;
-
-            blogCards.forEach((card) => {
-                const title = card.getAttribute("data-title")?.toLowerCase() || "";
-                const content = card.getAttribute("data-content")?.toLowerCase() || "";
-                if (title.includes(searchTerm) || content.includes(searchTerm)) {
-                    (card as HTMLElement).style.display = "block";
-                    hasVisibleCards = true;
-                } else {
-                    (card as HTMLElement).style.display = "none";
-                }
-            });
-
-            if (noResults) {
-                noResults.style.display = hasVisibleCards ? "none" : "block";
+                clearBtn?.addEventListener("click", () => {
+                    if (searchInput) {
+                        searchInput.value = "";
+                        filterBlogs();
+                    }
+                });
             }
-        }
 
-        searchInput?.addEventListener("input", filterBlogs);
-
-        clearBtn?.addEventListener("click", () => {
-            if (searchInput) {
-                searchInput.value = "";
-                filterBlogs();
-            }
-        });
-    }
-
-    initBlogLogic();
-    document.addEventListener("astro:page-load", initBlogLogic);
-</script>
+            initBlogLogic();
+            document.addEventListener("astro:page-load", initBlogLogic);
+        </script>
     </body>
 </html>

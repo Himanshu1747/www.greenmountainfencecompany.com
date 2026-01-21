@@ -662,6 +662,12 @@ section.contact-sec.estimate .submite-button {
     background: var(--color-white);
     color: var(--color-black);
 }
+.contactform-holders {
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto;
+    width: 100%;
+}
 
 
 

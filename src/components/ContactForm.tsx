@@ -3,11 +3,12 @@ import { actions } from "astro:actions";
 import "../styles/global.css";
 import { queryWordPress } from "../lib/wordpress";
 
-// 1. Added connectUsDesc to the query
+// 1. GraphQL Query
 const QURYDATA = `
 query Contactus {
   page(id: "contact", idType: URI) {
     contactUs {
+      connectUs
       contactFormTitle
       getConnectTittle
       connectUsDesc
@@ -18,8 +19,10 @@ query Contactus {
 
 export default function ContactForm() {
   const [status, setStatus] = useState("");
-  // 2. Updated state structure to match your JSON data keys
+  
+  // 2. Added connectUs to the initial state
   const [content, setContent] = useState({
+    connectUs: "",
     contactFormTitle: "Connect With Us",
     getConnectTittle: "We'd love to hear from you.",
     connectUsDesc: ""
@@ -30,8 +33,9 @@ export default function ContactForm() {
       try {
         const pagaedata = await queryWordPress(QURYDATA);
         if (pagaedata?.page?.contactUs) {
-          // 3. Set the state using the exact keys from WordPress
+          // 3. Explicitly mapping the connectUs field from the response
           setContent({
+            connectUs: pagaedata.page.contactUs.connectUs || "",
             contactFormTitle: pagaedata.page.contactUs.contactFormTitle,
             getConnectTittle: pagaedata.page.contactUs.getConnectTittle,
             connectUsDesc: pagaedata.page.contactUs.connectUsDesc,
@@ -46,7 +50,7 @@ export default function ContactForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.currentTarget; // Capture the form reference
+    const form = e.currentTarget;
     setStatus("Sending...");
     
     const formData = new FormData(form);
@@ -69,21 +73,19 @@ export default function ContactForm() {
         setStatus("❌ Error sending confirmation.");
       } else {
         setStatus("✅ Thank you! A confirmation email has been sent to you.");
-        
-        // --- THIS CLEARS THE FORM ---
         form.reset(); 
       }
     } catch (err) {
       setStatus("❌ An unexpected error occurred.");
     }
   };
+
   return (
     <div className="contactform-holders">
       <div className="centerdata-form">
-        {/* 4. Displaying the fields correctly */}
-        <h4 className="fs-30">{content.contactFormTitle}</h4>
+        {/* 4. This will now work because connectUs is in the state */}
+        <h4 className="fs-30">{content.connectUs}</h4>
         
-        {/* Display connectUsDesc if it exists */}
         {content.connectUsDesc && (
           <div 
             className="connect-desc" 
