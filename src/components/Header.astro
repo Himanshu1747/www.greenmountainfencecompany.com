@@ -46,42 +46,40 @@ const logo = data?.siteLogo?.sourceUrl;
 const rawNodes = data?.menu?.menuItems?.nodes || [];
 
 const menuItems = rawNodes
-	.filter((item) => !item.parentId)
-	.sort((a, b) => (a.order || 0) - (b.order || 0))
-	.map((item) => ({
-		...item,
-		children: (item.childItems?.nodes || []).sort(
-			(a, b) => (a.order || 0) - (b.order || 0),
-		),
-	}));
+    .filter((item) => !item.parentId)
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
+    .map((item) => ({
+        ...item,
+        children: (item.childItems?.nodes || []).sort(
+            (a, b) => (a.order || 0) - (b.order || 0),
+        ),
+    }));
 ---
 {logo && (
     <link rel="preload" as="image" href={logo} fetchpriority="high" />
 )}
 
 <header class="custom-header">
-	<div class="top-headers">
-		<div class="container">
-			<div class="grids-data">
-				<div class="details-data">
-					<p>
-						<a href="tel:+18602920340"
-							>Contact No.: (860) 292-0340</a
-						>
-					</p>
-				</div>
-				<div class="details-data">
-					<p><a href="/request-a-free-estimate-form">Get Your Free Estimate Today</a></p>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="main-headers">
-		<div class="container">
-			<div class="grid-headers">
-				<div class="grid-mobiles">
-					<div class="main_logo">
-						<HeaderLink href="/" title="Soup4change">
+    <div class="top-headers">
+        <div class="container">
+            <div class="grids-data">
+                <div class="details-data">
+                    <p>
+                        <a href="tel:+18602920340">Contact No.: (860) 292-0340</a>
+                    </p>
+                </div>
+                <div class="details-data">
+                    <p><a href="/request-a-free-estimate-form">Get Your Free Estimate Today</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="main-headers">
+        <div class="container">
+            <div class="grid-headers">
+                <div class="grid-mobiles">
+                    <div class="main_logo">
+                        <HeaderLink href="/" title="Soup4change">
                             <img
                                 src={logo}
                                 alt="Logo"
@@ -92,368 +90,340 @@ const menuItems = rawNodes
                                 decoding="sync"
                             />
                         </HeaderLink>
-					</div>
-					<div class="menu-icon">
-						<svg
-							class="bars"
-							viewBox="0 0 100 100"
-							onclick="this.classList.toggle('active')"
-						>
-							<path
-								class="line top"
-								d="m 30,33 h 40 c 13.100415,0 14.380204,31.80258 6.899646,33.421777 -24.612039,5.327373 9.016154,-52.337577 -12.75751,-30.563913 l -28.284272,28.284272"
-							></path>
-							<path
-								class="line middle"
-								d="m 70,50 c 0,0 -32.213436,0 -40,0 -7.786564,0 -6.428571,-4.640244 -6.428571,-8.571429 0,-5.895471 6.073743,-11.783399 12.286435,-5.570707 6.212692,6.212692 28.284272,28.284272 28.284272,28.284272"
-							></path>
-							<path
-								class="line bottom"
-								d="m 69.575405,67.073826 h -40 c -13.100415,0 -14.380204,-31.80258 -6.899646,-33.421777 24.612039,-5.327373 -9.016154,52.337577 12.75751,30.563913 l 28.284272,-28.284272"
-							></path>
-						</svg>
-					</div>
-				</div>
-				<div class="header-linksgrids">
-					<ul class="list_data">
-						{
-							menuItems.map((item) => (
-								<li
-									class={`${item.cssClasses?.join(" ")} ${item.children.length ? "menu-item-has-children" : ""}`.trim()}
-								>
-									<HeaderLink
-										href={item.uri.replace(/\/$/, "")}
-										title={item.label}
-										target={item.target}
-									>
-										{item.label}
-									</HeaderLink>
+                    </div>
+                    <div class="menu-icon">
+                        <svg class="bars" viewBox="0 0 100 100" onclick="this.classList.toggle('active')">
+                            <path class="line top" d="m 30,33 h 40 c 13.100415,0 14.380204,31.80258 6.899646,33.421777 -24.612039,5.327373 9.016154,-52.337577 -12.75751,-30.563913 l -28.284272,28.284272"></path>
+                            <path class="line middle" d="m 70,50 c 0,0 -32.213436,0 -40,0 -7.786564,0 -6.428571,-4.640244 -6.428571,-8.571429 0,-5.895471 6.073743,-11.783399 12.286435,-5.570707 6.212692,6.212692 28.284272,28.284272 28.284272,28.284272"></path>
+                            <path class="line bottom" d="m 69.575405,67.073826 h -40 c -13.100415,0 -14.380204,-31.80258 -6.899646,-33.421777 24.612039,-5.327373 -9.016154,52.337577 12.75751,30.563913 l 28.284272,-28.284272"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="header-linksgrids">
+                    <ul class="list_data">
+                        {
+                            menuItems.map((item, index) => (
+                                <li class={`${item.cssClasses?.join(" ")} ${item.children.length ? "menu-item-has-children" : ""}`.trim()}>
+                                    <HeaderLink
+                                        /* If index is 0 (first child), use raw uri. Otherwise, use replace. */
+                                        href={index === 0 ? item.uri : item.uri.replace(/\/$/, "")}
+                                        title={item.label}
+                                        target={item.target}
+                                    >
+                                        {item.label}
+                                    </HeaderLink>
 
-									{item.children.length > 0 && (
-										<ul class="sub-menu">
-											{item.children.map((child) => (
-												<li
-													class={child.cssClasses?.join(
-														" ",
-													)}
-												>
-													<HeaderLink
-														href={child.uri.replace(/\/$/, "")}
-														title={child.label}
-														target={child.target}
-													>
-														{child.label}
-													</HeaderLink>
-												</li>
-											))}
-										</ul>
-									)}
-								</li>
-							))
-						}
-					</ul>
-				</div>
-			</div>
-		</div>
-	</div>
+                                    {item.children.length > 0 && (
+                                        <ul class="sub-menu">
+                                            {item.children.map((child) => (
+                                                <li class={child.cssClasses?.join(" ")}>
+                                                    <HeaderLink
+                                                        href={child.uri.replace(/\/$/, "")}
+                                                        title={child.label}
+                                                        target={child.target}
+                                                    >
+                                                        {child.label}
+                                                    </HeaderLink>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </header>
 <div class="margin-top"></div>
 
 <style>
-	header.custom-header {
-		color: var(--color-white);
-		position: fixed;
-		width: 100%;
-		top: 0;
-		z-index: 111;
-	}
+    header.custom-header {
+	color: var(--color-white);
+	position: fixed;
+	width: 100%;
+	top: 0;
+	z-index: 111;
+}
 
-	.grids-data {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 15px;
-	}
+.grids-data {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 15px;
+}
 
-	.top-headers {
-		background: var(--color-231F20);
-		padding: 10px 0px;
-	}
-	.details-data p{
-		padding: 0;
-	}
+.top-headers {
+	background: var(--color-231F20);
+	padding: 10px 0px;
+}
 
-	.main-headers {
-		background: rgba(11, 11, 11, 0.2);
-		backdrop-filter: blur(5px);
-		padding: 15px 0px;
-	}
+.details-data p {
+	padding: 0;
+}
 
-	ul.sub-menu li {
-		padding: 10px 15px;
-		border-bottom: 1px solid var(--color-D3D3D3);
-		background: rgba(255, 255, 255, 0.8);
-		backdrop-filter: blur(3px);
-		/* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; */
-	}
+.main-headers {
+	background: rgba(11, 11, 11, 0.2);
+	backdrop-filter: blur(5px);
+	padding: 15px 0px;
+}
 
-	header.custom-header ul.sub-menu li a {
-		color: var(--color-231F20);
-		font-size: 16px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 20px;
-	}
+ul.sub-menu li {
+	padding: 10px 15px;
+	border-bottom: 1px solid var(--color-D3D3D3);
+	background: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(3px);
+}
 
-	.details-data p a {
-		font-size: 18px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 20px;
-	}
+header.custom-header ul.sub-menu li a {
+	color: var(--color-231F20);
+	font-size: 16px;
+	font-weight: 500;
+	line-height: 20px;
+}
 
+.details-data p a {
+	font-size: 18px;
+	font-weight: 500;
+	line-height: 20px;
+}
+
+.main_logo {
+	max-width: 200px;
+	width: 100%;
+}
+
+.grid-headers {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 30px;
+	width: 100%;
+}
+
+ul.list_data li a {
+	font-size: 21px;
+	font-weight: 500;
+	line-height: 30px;
+}
+
+ul.list_data {
+	display: flex;
+	align-items: center;
+	gap: 30px;
+}
+
+li.menu-item-has-children {
+	position: relative;
+	padding-right: 20px;
+}
+
+li.menu-item-has-children::after {
+	position: absolute;
+	top: 15px;
+	right: 0;
+	width: 8px;
+	height: 8px;
+	border-right: 2px solid var(--color-white);
+	border-bottom: 2px solid var(--color-white);
+	transform: translateY(-50%) rotate(45deg);
+	content: "";
+	transition: 0.3s ease-in;
+}
+
+ul.sub-menu {
+	position: absolute;
+	width: 240px;
+	padding-top: 39px;
+	display: none;
+	left: -15%;
+}
+
+.bars {
+	width: 60px;
+	cursor: pointer;
+}
+
+.bars .line {
+	fill: none;
+	stroke: var(--color-white);
+	stroke-width: 4;
+	stroke-linecap: square;
+	transition: stroke-dasharray 400ms, stroke-dashoffset 1s;
+}
+
+.bars .line.top {
+	stroke-dasharray: 40 172;
+}
+
+.bars .line.middle {
+	stroke-dasharray: 40 111;
+}
+
+.bars .line.bottom {
+	stroke-dasharray: 40 172;
+}
+
+.bars.active .top {
+	stroke-dashoffset: -132px;
+}
+
+.bars.active .middle {
+	stroke-dashoffset: -71px;
+}
+
+.bars.active .bottom {
+	stroke-dashoffset: -132px;
+}
+
+.menu-icon {
+	display: none;
+}
+
+li.last-child a {
+	color: var(--color-231F20);
+	text-align: center;
+	font-size: 18px;
+	font-weight: 500;
+	line-height: 30px;
+	background: var(--color-white);
+	padding: 10px 25px;
+	border-radius: 25px;
+}
+
+li.last-child a:hover {
+	background: var(--color-green);
+	color: var(--color-white) !important;
+}
+
+.details-data p a:hover {
+	color: var(--color-orange);
+}
+
+.margin-top {
+	display: none;
+}
+
+@media(max-width:1400px) {
 	.main_logo {
-		max-width: 200px;
-		width: 100%;
-	}
-
-	.grid-headers {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 30px;
-		width: 100%;
+		max-width: 150px;
 	}
 
 	ul.list_data li a {
-		font-size: 21px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 30px;
+		font-size: 16px;
+		line-height: 25px;
 	}
 
-	ul.list_data {
-		display: flex;
-		align-items: center;
-		gap: 30px;
+	.main-headers {
+		padding: 10px 0px;
 	}
 
-	li.menu-item-has-children {
-		position: relative;
-		padding-right: 20px;
+	.details-data p a {
+		font-size: 15px;
+		line-height: normal;
 	}
+
+	.top-headers {
+		padding: 7px 0px;
+	}
+
 	li.menu-item-has-children::after {
-		position: absolute;
-		top: 15px;
-		right: 0;
-		width: 8px;
-		height: 8px;
-		border-right: 2px solid var(--color-white);
-		border-bottom: 2px solid var(--color-white);
-		transform: translateY(-50%) rotate(45deg);
-		content: "";
-		transition: 0.3s ease-in;
+		top: 11px;
+	}
+
+	li.last-child a {
+		padding: 7px 20px;
 	}
 
 	ul.sub-menu {
-		position: absolute;
-		width: 240px;
-		padding-top: 39px;
-		display: none;
-		left: -15%;
-	}
-	/* ul.list_data li a:hover {
-		color: var(--color-orange);
-	} */
-
-	/* MENU ICON CSS ANIMATED  */
-	.bars {
-		width: 60px;
-		cursor: pointer;
+		padding-top: 27px;
 	}
 
-	.bars .line {
-		fill: none;
-		stroke: var(--color-white);
-		stroke-width: 4;
-		stroke-linecap: square;
-		transition:
-			stroke-dasharray 400ms,
-			stroke-dashoffset 1s;
+	header.custom-header ul.sub-menu li a {
+		font-size: 15px;
+		line-height: 17px;
 	}
 
-	.bars .line.top {
-		stroke-dasharray: 40 172;
+	ul.sub-menu li {
+		padding: 5px 10px;
+	}
+}
+
+@media (min-width: 1200px) {
+	li.menu-item-has-children:hover ul.sub-menu {
+		display: block !important;
+	}
+}
+
+@media (max-width: 1199px) {
+	.grid-headers {
+		flex-direction: column;
+		align-items: start;
 	}
 
-	.bars .line.middle {
-		stroke-dasharray: 40 111;
+	ul.sub-menu {
+		position: static;
+		width: 100%;
 	}
 
-	.bars .line.bottom {
-		stroke-dasharray: 40 172;
+	ul.list_data {
+		flex-direction: column;
+		gap: 15px;
+		align-items: start;
+		width: 100%;
+		padding-bottom: 30px;
 	}
 
-	.bars.active .top {
-		stroke-dashoffset: -132px;
+	.header-linksgrids,
+	ul.list_data li {
+		width: 100%;
 	}
 
-	.bars.active .middle {
-		stroke-dashoffset: -71px;
+	li.menu-item-has-children::after {
+		right: 15px;
 	}
 
-	.bars.active .bottom {
-		stroke-dashoffset: -132px;
-	}
 	.menu-icon {
-		display: none;
-	}
-	/* MENU ICON CSS ANIMATED END */
-
-	li.last-child a {
-		color: var(--color-231F20);
-		text-align: center;
-		font-size: 18px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 30px;
-		background: var(--color-white);
-		padding: 10px 25px;
-		border-radius: 25px;
-	}
-	li.last-child a:hover {
-		background: var(--color-green);
-		color: var(--color-white) !important;
+		display: block;
 	}
 
-	.details-data p a:hover {
-		color: var(--color-orange);
+	.grid-mobiles {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
 	}
 
-	.margin-top{
+	.header-linksgrids {
 		display: none;
 	}
 
-	@media (min-width: 1200px) {
-		li.menu-item-has-children:hover ul.sub-menu {
-			display: block !important;
-		}
+	.main_logo {
+		max-width: 115px;
 	}
-	@media (max-width: 1600px) {
-		.main_logo {
-			max-width: 150px;
-		}
-		ul.list_data li a {
-			font-size: 18px;
-			line-height: 22px;
-		}
 
-		li.menu-item-has-children::after {
-			top: 10px;
-		}
-
-		.main-headers {
-			padding: 10px 0px;
-		}
-
-		.details-data p a {
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 20px;
-		}
-
-		.top-headers {
-			padding: 10px 0px;
-		}
-		ul.sub-menu {
-			padding-top: 27px;
-		}
+	.main-headers {
+		background: var(--color-black);
 	}
-	@media (max-width: 1400px) {
-		ul.list_data li a {
-			font-size: 15px;
-			line-height: normal;
-		}
-		ul.list_data {
-			gap: 20px;
-		}
+
+	.margin-top {
+		display: block;
+		margin-top: 106px;
 	}
-	@media (max-width: 1199px) {
-		.grid-headers {
-			flex-direction: column;
-			align-items: start;
-		}
-		ul.sub-menu {
-			position: static;
-			width: 100%;
-		}
-
-		ul.list_data {
-			flex-direction: column;
-			gap: 15px;
-			align-items: start;
-			width: 100%;
-			padding-bottom: 30px;
-		}
-
-		.header-linksgrids,
-		ul.list_data li {
-			max-width: 100%;
-			width: 100%;
-		}
-
-		li.menu-item-has-children {
-			padding-right: 0;
-		}
-
-		li.menu-item-has-children::after {
-			right: 15px;
-		}
-
-		.menu-icon {
-			display: block;
-		}
-		.grid-mobiles {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			width: 100%;
-		}
-
-		.header-linksgrids {
-			display: none;
-		}
-
-		.main_logo {
-			max-width: 115px;
-		}
-		.main-headers,
-		.top-headers {
-			padding: 5px 0px;
-		}
-		.main-headers{
-			background: var(--color-black);
-		}
-
-		.margin-top{
-			display: block;
-			        margin-top: 106px;
-		}
-	
-	}
+}
 </style>
 
 <script is:inline>
-	document.addEventListener("DOMContentLoaded", function () {
-		$(".menu-icon").click(function () {
-			$(".header-linksgrids").slideToggle();
-		});
-
-		$(".sub-menu").hide();
-		$(".menu-item-has-children").click(function (e) {
-			e.stopPropagation();
-			$(this).children(".sub-menu").slideToggle();
-		});
-	});
+    document.addEventListener("DOMContentLoaded", function () {
+        $(".menu-icon").click(function () {
+            $(".header-linksgrids").slideToggle();
+        });
+        $(".sub-menu").hide();
+        $(".menu-item-has-children").click(function (e) {
+            e.stopPropagation();
+            $(this).children(".sub-menu").slideToggle();
+        });
+    });
 </script>

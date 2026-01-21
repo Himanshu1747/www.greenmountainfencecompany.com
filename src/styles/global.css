@@ -654,8 +654,16 @@ ul.sub-menu li a {
     margin: 0 auto;
 }
 section.contact-sec.estimate {
-    background: #f6f6f6;
+    background:var(--color-green);
+    color: var(--color-white);
 }
+
+section.contact-sec.estimate .submite-button {
+    background: var(--color-white);
+    color: var(--color-black);
+}
+
+
 
 @media(max-width:1600px) {
     :root {
@@ -717,7 +725,7 @@ section.contact-sec.estimate {
     }
 
     .link-button {
-        padding: 7px 22px;
+        padding: 5px 22px;
         ;
         font-size: 15px;
     }

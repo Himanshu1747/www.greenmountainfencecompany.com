@@ -77,21 +77,14 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
           function reloadWidgetScript() {
             const container = document.getElementById('indexReviewsWidget');
             if (!container) return;
-
-            // 1. Clear the container to remove the "giant logo" mess
             container.innerHTML = "";
-
-            // 2. Remove any existing instances of the script to force a fresh load
             const oldScript = document.getElementById('survly-script');
             if (oldScript) oldScript.remove();
 
-            // 3. Create a brand new script element
             const newScript = document.createElement('script');
             newScript.id = 'survly-script';
             newScript.src = "https://survlywidget.firebaseapp.com/static/js/index.js";
             newScript.async = true;
-
-            // 4. When the script loads, trigger the render
             newScript.onload = () => {
                 if (typeof renderApp === 'function') {
                     renderApp();
@@ -101,16 +94,11 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
 
             document.body.appendChild(newScript);
           }
-
-          // Initial load
           reloadWidgetScript();
-
-          // Re-load every time the user navigates back to this page
           document.addEventListener('astro:page-load', reloadWidgetScript);
         </script>
 
         <style is:global>
-            /* Critical safety CSS to prevent the "Giant Icon" mess if styles lag */
             #indexReviewsWidget img {
                 max-width: 50px !important; 
                 height: auto !important;

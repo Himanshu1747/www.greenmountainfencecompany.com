@@ -40,12 +40,14 @@ const excellenceData = [...rawNodes].reverse();
         >
           <div class="excellence-image">
             <img
-              src={dataitems.featuredImage?.node?.sourceUrl || "/placeholder.jpg"}
+              src={
+                dataitems.featuredImage?.node?.sourceUrl || "/placeholder.jpg"
+              }
               alt={dataitems.featuredImage?.node?.altText || dataitems.title}
               width="406"
               height="405"
               loading="lazy"
-              decoding="async" 
+              decoding="async"
             />
           </div>
         </a>
@@ -60,7 +62,9 @@ const excellenceData = [...rawNodes].reverse();
             <a
               href={dataitems?.catgoriesPageLinks?.pageLink?.url || "#"}
               class="full-button"
-              title={dataitems?.catgoriesPageLinks?.pageLink?.title || "Read More"}
+              title={
+                dataitems?.catgoriesPageLinks?.pageLink?.title || "Read More"
+              }
             >
               <span>
                 {dataitems?.catgoriesPageLinks?.pageLink?.title || "Read More"}
@@ -129,7 +133,7 @@ const excellenceData = [...rawNodes].reverse();
       padding-top: 10px;
     }
     .excellence-image {
-      height: 290px;
+      height: 353px;
     }
   }
   @media (max-width: 991px) {
@@ -160,7 +164,7 @@ const excellenceData = [...rawNodes].reverse();
       max-width: 260px;
     }
 
-    .about-excellence{
+    .about-excellence {
       gap: 10px;
     }
   }

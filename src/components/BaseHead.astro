@@ -22,8 +22,6 @@ const socialImage = typeof image === 'string' ? image : image?.src;
 const lcpImageUrl = "https://web.ogrelogicsolutions.com/greenmountainfencecompany.com/wp-content/uploads/2025/01/slider-1-1.webp";
 ---
 
-<ClientRouter />
-
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -31,8 +29,13 @@ const lcpImageUrl = "https://web.ogrelogicsolutions.com/greenmountainfencecompan
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
 <link rel="preload" as="image" href={lcpImageUrl} fetchpriority="high" />
-<link rel="icon" href="/assets/images/favicon.png" sizes="32x32" />
+<link rel="icon" href="/favicon.png" sizes="32x32" />
+
+<ClientRouter />
 
 {/* Canonical / SEO */}
 {canonical ? <link rel="canonical" href={canonical} /> : <link rel="canonical" href={Astro.url} />}
@@ -49,26 +52,14 @@ const lcpImageUrl = "https://web.ogrelogicsolutions.com/greenmountainfencecompan
     </>
 )}
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@7/swiper-bundle.min.css" />
-
 <script is:inline src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script is:inline src="https://cdn.jsdelivr.net/npm/swiper@7/swiper-bundle.min.js"></script>
+<script is:inline src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 <script is:inline>
   function initPlugins() {
-    // Re-trigger jQuery ready if needed
     if (window.jQuery) {
       $(document).trigger('ready');
-    }
-    
-    // If you have specific Swiper code, it must be called here
-    console.log("Plugins re-initialized on page transition");
+    console.log("Plugins re-initialized");
   }
-
-  // Run on initial load
-  document.addEventListener('DOMContentLoaded', initPlugins);
-
-  // Run after every View Transition navigation
   document.addEventListener('astro:page-load', initPlugins);
 </script>
