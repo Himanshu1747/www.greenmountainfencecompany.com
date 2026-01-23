@@ -249,7 +249,7 @@ textarea:focus-visible {
 }
 
 .excelence-title {
-    max-width: 567px;
+    /* max-width: 567px; */
     padding-bottom: 20px;
     width: 100%;
 }
@@ -563,7 +563,7 @@ ul.sub-menu li a {
 /* BLOG END */
 
 .choose-holders ol li {
-    list-style: auto;
+    list-style: disc;
 }
 
 .choose-holders ul li {

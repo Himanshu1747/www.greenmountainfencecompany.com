@@ -2,7 +2,6 @@
 import { ClientRouter } from 'astro:transitions';
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "../styles/global.css";
-import type { ImageMetadata } from "astro";
 import FallbackImage from "../assets/blog-placeholder-1.jpg";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 
@@ -25,6 +24,8 @@ const lcpImageUrl = "https://web.ogrelogicsolutions.com/greenmountainfencecompan
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+<ClientRouter />
+
 <link rel="preconnect" href="https://web.ogrelogicsolutions.com" crossorigin />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,31 +36,33 @@ const lcpImageUrl = "https://web.ogrelogicsolutions.com/greenmountainfencecompan
 <link rel="preload" as="image" href={lcpImageUrl} fetchpriority="high" />
 <link rel="icon" href="/favicon.png" sizes="32x32" />
 
-<ClientRouter />
-
 {/* Canonical / SEO */}
 {canonical ? <link rel="canonical" href={canonical} /> : <link rel="canonical" href={Astro.url} />}
 {focuskw && <meta name="keywords" content={focuskw} />}
 
 {!useYoast && (
-    <>
-        <title>{customTitle}</title>
-        <meta name="description" content={customDesc} />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={customTitle} />
-        <meta property="og:description" content={customDesc} />
-        {socialImage && <meta property="og:image" content={new URL(socialImage, Astro.url)} />}
-    </>
+  <>
+    <title>{customTitle}</title>
+    <meta name="description" content={customDesc} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={customTitle} />
+    <meta property="og:description" content={customDesc} />
+    {socialImage && <meta property="og:image" content={new URL(socialImage, Astro.url)} />}
+  </>
 )}
 
-<script is:inline src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script is:inline src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script is:inline src="https://code.jquery.com/jquery-3.7.1.min.js" data-astro-rerun></script>
+<script is:inline src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" data-astro-rerun></script>
 
 <script is:inline>
   function initPlugins() {
+    console.log("Astro Page Load - Re-initializing");
     if (window.jQuery) {
+      // Manually trigger ready for legacy plugins
       $(document).trigger('ready');
-    console.log("Plugins re-initialized");
+    }
   }
+
+  // Use 'astro:page-load' for both first load and every transition
   document.addEventListener('astro:page-load', initPlugins);
 </script>

@@ -333,7 +333,7 @@ query faqpage {
 
 query whychoosus {
   page(id: "why-choose-us", idType: URI) {
-       title
+    title
     seo {
       canonical
       cornerstone
@@ -349,17 +349,17 @@ query whychoosus {
       whyChooseTitle
       whyChosseDesc
       bottomParagraph
-      mainVideo{
-         node {
+      mainVideo {
+        node {
           mediaItemUrl
         }
       }
-      videoPoster{
-         node {
+      videoPoster {
+        node {
           mediaItemUrl
         }
       }
-      pageLink { 
+      pageLink {
         pageLinks {
           url
           title
@@ -373,7 +373,7 @@ query whychoosus {
 query GetCedarWoodFence {
   page(id: "cedar-wood-fence", idType: URI) {
     title
-     seo {
+    seo {
       canonical
       cornerstone
       fullHead
@@ -386,21 +386,21 @@ query GetCedarWoodFence {
     }
     cedarWoodFence {
       propertyTitle
-      descrptionmain 
-    galleryImage {
-  nodes {
-    altText
-    sourceUrl 
-    mediaDetails {
-      sizes {
-        name  
-        sourceUrl
-        width
-        height
+      descrptionmain
+      galleryImage {
+        nodes {
+          altText
+          sourceUrl
+          mediaDetails {
+            sizes {
+              name
+              sourceUrl
+              width
+              height
+            }
+          }
+        }
       }
-    }
-  }
-}
       mainTitlegreen
       greendescription
       greenimage {
@@ -421,24 +421,25 @@ query Contactus {
       cornerstone
       fullHead
     }
-    contactUs{
+    contactUs {
       getConnectTittle
       contactFormTitle
-        connectUsDesc
-      contactDetails{
-        iconImage{
+      connectUs
+      connectUsDesc
+      contactDetails {
+        iconImage {
           node {
-        mediaItemUrl
-        altText
-      }
+            mediaItemUrl
+            altText
+          }
         }
         detailsContacts
       }
-      backgroundImage{
-         node {
-        mediaItemUrl
-        altText
-      }
+      backgroundImage {
+        node {
+          mediaItemUrl
+          altText
+        }
       }
     }
     featuredImage {
@@ -448,10 +449,8 @@ query Contactus {
         fileSize
       }
     }
-
   }
 }
-
 
 query Estimatespage {
   page(id: "request-a-free-estimate-form", idType: URI) {
@@ -468,16 +467,12 @@ query Estimatespage {
         fileSize
       }
     }
-    requestAEstimate{
+    requestAEstimate {
       formTitle
       formDesc
     }
-
   }
 }
-
-
-
 
 <!-- NODE MAILER STEP DATA  -->
 
