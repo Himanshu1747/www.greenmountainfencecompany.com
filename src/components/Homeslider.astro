@@ -30,6 +30,7 @@ query Homepage {
   page(id: "/", idType: URI) {
     id
     homepage {
+    bannerTitle
       excellenceTitle
     }
   }
@@ -46,36 +47,41 @@ const nodes = datasliders?.homeSliders?.nodes || [];
 const finaldata = homdata?.page?.homepage;
 const firstSlide = nodes[0];
 const preloadDesktop = firstSlide?.featuredImage?.node?.sourceUrl;
-const preloadMobile = firstSlide?.homeslidermain?.mobileBanner?.node?.mediaItemUrl;
+const preloadMobile =
+    firstSlide?.homeslidermain?.mobileBanner?.node?.mediaItemUrl;
 ---
 
 {/* Preload for Desktop (Screens wider than 606px) */}
-{preloadDesktop && (
-    <link
-        rel="preload"
-        as="image"
-        href={preloadDesktop}
-        media="(min-width: 607px)"
-        fetchpriority="high"
-    />
-)}
+{
+    preloadDesktop && (
+        <link
+            rel="preload"
+            as="image"
+            href={preloadDesktop}
+            media="(min-width: 607px)"
+            fetchpriority="high"
+        />
+    )
+}
 
 {/* Preload for Mobile (Screens 606px and smaller) */}
-{preloadMobile && (
-    <link
-        rel="preload"
-        as="image"
-        href={preloadMobile}
-        media="(max-width: 606px)"
-        fetchpriority="high"
-    />
-)}
+{
+    preloadMobile && (
+        <link
+            rel="preload"
+            as="image"
+            href={preloadMobile}
+            media="(max-width: 606px)"
+            fetchpriority="high"
+        />
+    )
+}
 
 <section class="homeslider-sec">
     <div class="container">
         <div class="content-main">
             <h1 class="fs-92 text-uppercase">
-                {finaldata?.excellenceTitle || "error"}
+                {finaldata?.bannerTitle || "error"}
             </h1>
             <div class="arrow-icon">
                 <a href="/about" title="View More" class="link-button">
@@ -97,9 +103,13 @@ const preloadMobile = firstSlide?.homeslidermain?.mobileBanner?.node?.mediaItemU
                 {
                     nodes.map((slide, index) => {
                         const imagepath = slide.featuredImage?.node?.sourceUrl;
-                        const mobilepath = slide.homeslidermain?.mobileBanner?.node?.mediaItemUrl;
-                        const altText = slide.homeslidermain?.mobileBanner?.node?.altText || "Fence Excellence";
-                        
+                        const mobilepath =
+                            slide.homeslidermain?.mobileBanner?.node
+                                ?.mediaItemUrl;
+                        const altText =
+                            slide.homeslidermain?.mobileBanner?.node?.altText ||
+                            "Fence Excellence";
+
                         return (
                             <div class="swiper-slide" key={slide.id}>
                                 <div class="slider-image">
@@ -114,13 +124,21 @@ const preloadMobile = firstSlide?.homeslidermain?.mobileBanner?.node?.mediaItemU
 
                                         {/* Desktop/Default Source */}
                                         <img
-                                            src={imagepath || "/placeholder.jpg"}
+                                            src={
+                                                imagepath || "/placeholder.jpg"
+                                            }
                                             alt={altText}
                                             width="1920"
                                             height="929"
-                                            loading={index === 0 ? "eager" : "lazy"}
-                                            fetchpriority={index === 0 ? "high" : "low"}
-                                            decoding={index === 0 ? "sync" : "async"}
+                                            loading={
+                                                index === 0 ? "eager" : "lazy"
+                                            }
+                                            fetchpriority={
+                                                index === 0 ? "high" : "low"
+                                            }
+                                            decoding={
+                                                index === 0 ? "sync" : "async"
+                                            }
                                         />
                                     </picture>
                                 </div>
@@ -157,7 +175,7 @@ const preloadMobile = firstSlide?.homeslidermain?.mobileBanner?.node?.mediaItemU
         position: absolute;
         top: 50%;
         z-index: 11;
-        max-width: 50%;
+        max-width: 45%;
         transform: translate(-0%, -40%);
         width: 100%;
     }
@@ -177,6 +195,7 @@ const preloadMobile = firstSlide?.homeslidermain?.mobileBanner?.node?.mediaItemU
             aspect-ratio: auto;
         }
         .content-main {
+            max-width: 42%;
             transform: translate(-0%, -38%);
         }
     }
@@ -184,10 +203,13 @@ const preloadMobile = firstSlide?.homeslidermain?.mobileBanner?.node?.mediaItemU
         .slider-image {
             height: 640px;
         }
+        .content-main {
+            max-width: 40%;
+        }
     }
     @media (max-width: 1199px) {
         .content-main {
-            max-width: 767px;
+            max-width: 100%;
             text-align: center;
             margin: 0 auto;
             width: 95%;
@@ -212,7 +234,7 @@ const preloadMobile = firstSlide?.homeslidermain?.mobileBanner?.node?.mediaItemU
                     loop: true,
                     fadeEffect: { crossFade: true },
                     watchSlidesProgress: true,
-                    preloadImages: false, 
+                    preloadImages: false,
                 });
             });
         } else {
