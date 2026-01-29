@@ -108,8 +108,8 @@ const videoPosterUrl = aboutUs?.videoPoster?.node?.mediaItemUrl;
                             <video
                                 src={aboutUs?.video?.node?.mediaItemUrl || ""}
                                 poster={videoPosterUrl || ""}
-                                width="671"
-                                height="380"
+                                width="670"
+                                height="373"
                                 controls
                                 playsinline
                                 preload="metadata"></video>
@@ -138,12 +138,11 @@ const videoPosterUrl = aboutUs?.videoPoster?.node?.mediaItemUrl;
 
         <style>
             .aboutvideo video {
-                /* height: 100%; */
+                height:auto;
                 width: 100%;
                 /* object-fit: cover; */
             }
             .aboutvideo {
-                /* height: 460px; */
                 max-width: 670px;
                 overflow: hidden;
                 width: 100%;
