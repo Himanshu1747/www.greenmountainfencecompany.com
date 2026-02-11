@@ -1,0 +1,122 @@
+---
+import { queryWordPress } from "../lib/wordpress";
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Excellence from "../components/Excellence.astro";
+import Testimonial from "../components/Testimonial.astro";
+import Tipsfaq from "../components/Tipsfaq.astro";
+import Footer from "../components/Footer.astro";
+
+const QUERY_ABOUT = `
+query Aboutpage {
+  page(id: "privacy-policy", idType: URI) {
+    title
+    content
+    seo {
+      canonical
+      cornerstone
+      fullHead
+      
+    }
+    featuredImage {
+      node {
+        mediaItemUrl
+        altText
+      }
+    }
+  }
+}
+`;
+
+const pagedata = await queryWordPress(QUERY_ABOUT);
+
+const finaldata = pagedata?.page || {};
+const seodata = finaldata?.seo || {};
+const aboutUs = finaldata?.aboutUs || {};
+
+// Optimized URLs for preloading
+const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
+const videoPosterUrl = aboutUs?.videoPoster?.node?.mediaItemUrl;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead
+            useYoast={true}
+            canonical={seodata?.canonical || ""}
+            focuskw={seodata?.focuskw || ""}
+        />
+        {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
+        {
+            bannerUrl && (
+                <link
+                    rel="preload"
+                    as="image"
+                    href={bannerUrl}
+                    fetchpriority="high"
+                />
+            )
+        }
+        {
+            videoPosterUrl && (
+                <link
+                    rel="preload"
+                    as="image"
+                    href={videoPosterUrl}
+                    fetchpriority="low"
+                />
+            )
+        }
+    </head>
+    <body>
+        <Header />
+
+        <section class="innerbanner-sec">
+            <img
+                src={bannerUrl || ""}
+                alt={finaldata?.featuredImage?.node?.altText ||
+                    finaldata?.title ||
+                    ""}
+                title={finaldata?.title || ""}
+                width="1920"
+                height="532"
+                loading="eager"
+                fetchpriority="high"
+                decoding="sync"
+                class="banner-image"
+            />
+            <div class="container">
+                <div class="allabout-banner">
+                    <h1 class="fs-80">{finaldata?.title || ""}</h1>
+                </div>
+            </div>
+        </section>
+
+        <section class="alldatahere-sec ">
+            <div class="container">
+                <div class="post-content" set:html={finaldata?.content} />
+            </div>
+        </section>
+
+        <Tipsfaq />
+        <Footer />
+
+           <style>
+            /* Your existing CSS (Unchanged as requested) */
+            .gridnavmini a { font-size: 14px; line-height: 20px; font-weight: 400; }
+            .gridnavmini li.breadcrumb-item.active a { font-weight: 500; color: var(--color-black); }
+            .post-content a { text-decoration: underline; }
+            .gridnavmini { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: space-between; padding-bottom: 50px; }
+            ul.sharelinks, .share-articles { align-items: center; display: flex; gap: 10px; }
+            .share-articles p { padding-bottom: 0; color: rgba(0, 0, 0, 0.6); font-size: 14px; }
+            .bootm-hereee .share-articles { flex-direction: column-reverse; justify-content: center; padding-top: 65px; }
+            section.alldatahere-sec { padding: 50px 0px; }
+            section.recentblogs { padding: 60px 0px 100px 0px; background: #fff5f5; position: relative; z-index: 1; }
+            .center-data { text-align: center; padding-bottom: 30px; }
+            @media(max-width:1600px){ section.recentblogs { padding:60px 0px; } }
+            @media (max-width: 1400px) { .gridnavmini { padding-bottom: 30px; } section.recentblogs { padding:50px 0px; } }
+            @media (max-width: 767px) { section.alldatahere-sec { padding: 30px 0px; } section.recentblogs { padding:40px 0px; } }
+        </style>
+    </body>
+</html>
