@@ -5,6 +5,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Testimonial from "../components/Testimonial.astro";
 import ContactFormestimate from "../components/ContactFormestimate";
+import EstimateForm from "../components/EstimateForm.astro";
 
 const PAGEQUERY=`
 query Estimatespage {
@@ -76,7 +77,8 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
 
                     <div class="col-lg-12">
                         <div class="main-formholders">
-                                <ContactFormestimate client:load />
+                                <!-- <ContactFormestimate client:load /> -->
+                                 <EstimateForm/>
                         </div>
                     </div>
                 </div>

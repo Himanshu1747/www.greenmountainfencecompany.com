@@ -1,47 +1,298 @@
+---
+import { queryWordPress } from "../lib/wordpress";
+
+const QURYDATA = `
+query Contactus {
+  page(id: "contact", idType: URI) {
+    contactUs {
+      connectUs
+      contactFormTitle
+      getConnectTittle
+      connectUsDesc
+    }
+  }
+}
+`;
+
+const response = await queryWordPress(QURYDATA);
+const content = response?.page?.contactUs || {};
+---
+
 <div class="contactform-holders">
     <div class="centerdata-form">
-        <h4 class="fs-30">Connect With Us</h4>
-        <p>
-            We'd love to hear from you. Fill out the form below to get in touch.
-        </p>
+        <h4 class="fs-30">{content.connectUs}</h4>
+        {
+            content.connectUsDesc && (
+                <div class="connect-desc" set:html={content.connectUsDesc} />
+            )
+        }
     </div>
-    <form action="#">
+    <form id="contactForm">
         <div class="row">
             <div class="col-md-6">
                 <div class="univers-input">
-                    <input type="text" placeholder="First name" />
+                    <input
+                        type="text"
+                        name="firstName"
+                        id="firstName"
+                        placeholder="First name"
+                    />
+                    <p
+                        class="error-msg"
+                        id="firstName-error"
+                        style="color:red; font-size:12px; margin-top:5px; display:none;"
+                    >
+                    </p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="univers-input">
-                    <input type="text" placeholder="Last name" />
+                    <input
+                        type="text"
+                        name="lastName"
+                        id="lastName"
+                        placeholder="Last name"
+                    />
+                    <p
+                        class="error-msg"
+                        id="lastName-error"
+                        style="color:red; font-size:12px; margin-top:5px; display:none;"
+                    >
+                    </p>
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="univers-input">
-                    <input type="email" placeholder="Email" />
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        placeholder="Email"
+                    />
+                    <p
+                        class="error-msg"
+                        id="email-error"
+                        style="color:red; font-size:12px; margin-top:5px; display:none;"
+                    >
+                    </p>
                 </div>
             </div>
+
+            <div class="col-md-12" id="otp-wrapper" style="display: none;">
+                <div class="univers-input">
+                    <input
+                        type="number"
+                        id="otp-input"
+                        placeholder="Enter 6-Digit OTP"
+                    />
+                    <p
+                        class="error-msg"
+                        id="otp-error"
+                        style="color:red; font-size:12px; margin-top:5px; display:none;"
+                    >
+                    </p>
+                </div>
+            </div>
+
             <div class="col-md-12">
                 <div class="univers-input">
-                    <textarea placeholder="Your Messages" rows="5"></textarea>
+                    <textarea
+                        name="message"
+                        id="message"
+                        placeholder="Your Message"
+                        rows="5"></textarea>
+                    <p
+                        class="error-msg"
+                        id="message-error"
+                        style="color:red; font-size:12px; margin-top:5px; display:none;"
+                    >
+                    </p>
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="submit-button">
-                    <button type="submit" class="submite-button">Submit</button>
+                    <button type="submit" id="submitBtn" class="submite-button"
+                        >Submit</button
+                    >
                 </div>
             </div>
         </div>
     </form>
+    <p
+        id="response"
+        style="margin-top: 15px; font-weight: 600; text-align: center; color:#00f000;"
+    >
+    </p>
 </div>
 
+<script is:inline>
+    const form = document.getElementById("contactForm");
+    const responseEl = document.getElementById("response");
+    const submitBtn = document.getElementById("submitBtn");
+    const otpWrapper = document.getElementById("otp-wrapper");
+
+    let generatedOtp = null;
+    let isVerifying = false;
+
+    // Helper to show/hide errors
+    function setFieldError(fieldId, message = "") {
+        const errorEl = document.getElementById(`${fieldId}-error`);
+        if (message) {
+            errorEl.textContent = message;
+            errorEl.style.display = "block";
+        } else {
+            errorEl.style.display = "none";
+        }
+    }
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // 1. Reset all errors
+        document
+            .querySelectorAll(".error-msg")
+            .forEach((p) => (p.style.display = "none"));
+        responseEl.textContent = "";
+
+        const formData = new FormData(form);
+        const email = formData.get("email").trim();
+        const firstName = formData.get("firstName").trim();
+        const lastName = formData.get("lastName").trim();
+        const message = formData.get("message").trim();
+
+        // 2. Client-side Validation Logic
+        let isValid = true;
+        if (!firstName) {
+            setFieldError("firstName", "First name is required");
+            isValid = false;
+        }
+        if (!lastName) {
+            setFieldError("lastName", "Last name is required");
+            isValid = false;
+        }
+        if (!message) {
+            setFieldError("message", "Please enter a message");
+            isValid = false;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
+            setFieldError("email", "Email is required");
+            isValid = false;
+        } else if (!emailRegex.test(email)) {
+            setFieldError("email", "Please enter a valid email address");
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // PHASE 1: SEND OTP
+        if (!isVerifying) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending OTP...";
+            generatedOtp = Math.floor(
+                100000 + Math.random() * 900000,
+            ).toString();
+
+            try {
+                const res = await fetch("/api/send-otp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email,
+                        otp: generatedOtp,
+                        firstName,
+                    }),
+                });
+                const result = await res.json();
+                if (result.success) {
+                    otpWrapper.style.display = "block";
+                    isVerifying = true;
+                    submitBtn.textContent = "Verify & Submit";
+                    responseEl.style.color = "#007bff";
+                    responseEl.textContent =
+                        "Security code sent! Check your email.";
+                } else {
+                    throw new Error();
+                }
+            } catch (err) {
+                responseEl.style.color = "red";
+                responseEl.textContent = "Failed to send email. Try again.";
+            } finally {
+                submitBtn.disabled = false;
+            }
+            return;
+        }
+
+        // PHASE 2: VERIFY OTP & GQL SUBMISSION
+        const userOtp = document.getElementById("otp-input").value;
+        if (userOtp !== generatedOtp) {
+            setFieldError(
+                "otp",
+                "Invalid code. Please check your email again.",
+            );
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
+
+        try {
+            const gqlRes = await fetch(
+                "https://web.ogrelogicsolutions.com/greenmountainfencecompany.com/graphql",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        query: `mutation SubmitContact($name: String!, $email: String!, $phone: String, $subject: String, $message: String!) {
+                        submitContactForm(input: { name: $name, email: $email, phone: $phone, subject: $subject, message: $message }) {
+                            success message
+                        }
+                    }`,
+                        variables: {
+                            name: `${firstName} ${lastName}`,
+                            email: email,
+                            phone: "123-456-7890",
+                            subject: "Contact Form",
+                            message: message,
+                        },
+                    }),
+                },
+            );
+
+            const json = await gqlRes.json();
+            if (json.data?.submitContactForm?.success) {
+                responseEl.style.color = "green";
+                responseEl.textContent =
+                    "Thank you! Form submitted successfully.";
+                form.reset();
+                otpWrapper.style.display = "none";
+                isVerifying = false;
+                submitBtn.textContent = "Submit";
+            } else {
+                responseEl.style.color = "red";
+                responseEl.textContent =
+                    json.data?.submitContactForm?.message ||
+                    "Fields error. Please check your input.";
+            }
+        } catch (error) {
+            responseEl.style.color = "red";
+            responseEl.textContent = "Server error. Could not submit.";
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+</script>
+
 <style>
+    /* Your existing styles */
     .univers-input input,
     .univers-input textarea {
         border: 2px solid rgba(0, 0, 0, 0.16);
         background: var(--color-white);
         padding: 0px 15px;
+        width: 100%;
+        display: block;
     }
     .univers-input textarea {
         padding-top: 10px;
@@ -59,7 +310,7 @@
         height: 52px;
     }
     .univers-input {
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
     .centerdata-form {
         max-width: fit-content;
@@ -81,6 +332,7 @@
         border-radius: 40px;
         border: none;
         transition: 0.3s ease-in;
+        cursor: pointer;
     }
 
     .submite-button:hover {
@@ -88,9 +340,24 @@
         color: var(--color-green);
     }
 
-    .about-contact {
-        max-width: 585px;
-        width: 100%;
+    .submite-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+
+    /* Added Error Styles */
+    .error-msg {
+        color: red;
+        font-size: 13px;
+        margin: 0;
+        display: none;
+        font-weight: 500;
+        padding: 0;
+        line-height: normal;
+    }
+
+    #response {
+        color: #15d300 !important;
     }
 
     @media (max-width: 1400px) {

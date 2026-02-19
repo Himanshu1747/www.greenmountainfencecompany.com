@@ -5,6 +5,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Testimonial from "../components/Testimonial.astro";
 import ContactForm from "../components/ContactForm";
+import Contactform from "../components/Contactform.astro";
 
 const CONTACTQUERY = `
 query Contactus {
@@ -151,7 +152,8 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
                     </div>
                     <div class="col-lg-6">
                         <div class="main-formholders">
-                            <ContactForm client:load />
+                            <!-- <ContactForm client:load /> -->
+                             <Contactform/>
                         </div>
                     </div>
                 </div>

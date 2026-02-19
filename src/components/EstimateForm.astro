@@ -1,0 +1,402 @@
+---
+import { queryWordPress } from "../lib/wordpress";
+
+const QURYDATA = `
+query Estimatespage {
+  page(id: "request-a-free-estimate-form", idType: URI) {
+    requestAEstimate {
+      formTitle
+      formDesc
+    }
+  }
+}
+`;
+
+// Fetch the data
+const response = await queryWordPress(QURYDATA);
+const content = response.page;
+---
+
+<div class="contactform-holders data-estimate">
+<div class="centerdata-form">
+    <h4 class="fs-30">{content?.requestAEstimate?.formTitle || "error"}</h4>
+    <div set:html={content?.requestAEstimate?.formDesc || "error"}></div>
+</div>
+    <form id="contactForm">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="univers-input">
+                    <input
+                        type="text"
+                        name="firstname"
+                        id="firstname"
+                        placeholder="First Name"
+                    />
+                    <p
+                        id="firstname-error"
+                        class="error-msg"
+                        style="color:red; display:none; font-size:12px;"
+                    >
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="univers-input">
+                    <input
+                        type="text"
+                        name="lastname"
+                        id="lastname"
+                        placeholder="Last Name"
+                    />
+                    <p
+                        id="lastname-error"
+                        class="error-msg"
+                        style="color:red; display:none; font-size:12px;"
+                    >
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="univers-input">
+                    <input
+                        type="text"
+                        name="StreetAddress"
+                        id="street"
+                        placeholder="Street Address"
+                    />
+                    <p
+                        id="street-error"
+                        class="error-msg"
+                        style="color:red; display:none; font-size:12px;"
+                    >
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="univers-input">
+                    <input
+                        type="text"
+                        name="TownCity"
+                        id="city"
+                        placeholder="Town/City"
+                    />
+                    <p
+                        id="city-error"
+                        class="error-msg"
+                        style="color:red; display:none; font-size:12px;"
+                    >
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="univers-input">
+                    <input
+                        type="text"
+                        name="Phone"
+                        id="phone"
+                        placeholder="Phone"
+                    />
+                    <p
+                        id="phone-error"
+                        class="error-msg"
+                        style="color:red; display:none; font-size:12px;"
+                    >
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="univers-input">
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        placeholder="Your Email"
+                    />
+                    <p
+                        id="email-error"
+                        class="error-msg"
+                        style="color:red; display:none; font-size:12px;"
+                    >
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="univers-input">
+                    <select name="product" id="product">
+                        <option value="">Select Product</option>
+                        <option value="Cedar/Wood Fence">Cedar Fences</option>
+                        <option value="Vinyl Fence">Vinyl Fence</option>
+                        <option value="Chain Link Fence"
+                            >Chain-Link Fence</option
+                        >
+                        <option value="Aluminum Fence">Aluminum Fence</option>
+                    </select>
+                    <p
+                        id="product-error"
+                        class="error-msg"
+                        style="color:red; display:none; font-size:12px;"
+                    >
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="univers-input">
+                    <input
+                        type="text"
+                        name="Hearaboutus"
+                        id="hear"
+                        placeholder="How Did You Hear About Us?"
+                    />
+                    <p
+                        id="hear-error"
+                        class="error-msg"
+                        style="color:red; display:none; font-size:12px;"
+                    >
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="univers-input">
+                    <input
+                        type="text"
+                        name="PromoCode"
+                        id="promo"
+                        placeholder="Promo Code"
+                    />
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="univers-input">
+                    <textarea
+                        name="message"
+                        id="message"
+                        placeholder="Your Message"
+                        rows="5"></textarea>
+                    <p
+                        id="message-error"
+                        class="error-msg"
+                        style="color:red; display:none; font-size:12px;"
+                    >
+                    </p>
+                </div>
+            </div>
+
+            <div
+                class="col-md-12"
+                id="otp-wrapper"
+                style="display:none; margin-top:15px;"
+            >
+                <div class="univers-input">
+                    <input
+                        type="number"
+                        id="otp-input"
+                        placeholder="Enter 6-Digit OTP"
+                    />
+                    <p
+                        id="otp-error"
+                        class="error-msg"
+                        style="color:red; font-size:12px; display:none;"
+                    >
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="submit-button">
+                    <button type="submit" id="submitBtn" class="submite-button"
+                        >Send Message</button
+                    >
+                </div>
+                <p id="response" style="margin-top:15px; font-weight:bold;"></p>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script is:inline>
+    const form = document.getElementById("contactForm");
+    const responseEl = document.getElementById("response");
+    const submitBtn = document.getElementById("submitBtn");
+    const otpWrapper = document.getElementById("otp-wrapper");
+    const otpInput = document.getElementById("otp-input");
+
+    let generatedOtp = null;
+    let isVerifying = false;
+
+    function setFieldError(fieldId, message = "") {
+        const errorEl = document.getElementById(`${fieldId}-error`);
+        if (!errorEl) return;
+        if (message) {
+            errorEl.textContent = message;
+            errorEl.style.display = "block";
+        } else {
+            errorEl.textContent = "";
+            errorEl.style.display = "none";
+        }
+    }
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Reset errors
+        document.querySelectorAll(".error-msg").forEach((el) => {
+            el.style.display = "none";
+            el.textContent = "";
+        });
+        responseEl.textContent = "";
+
+        const formData = new FormData(form);
+        const firstName = formData.get("firstname")?.trim() || "";
+        const lastName = formData.get("lastname")?.trim() || "";
+        const street = formData.get("StreetAddress")?.trim() || "";
+        const city = formData.get("TownCity")?.trim() || "";
+        const phone = formData.get("Phone")?.trim() || "";
+        const email = formData.get("email")?.trim() || "";
+        const product = formData.get("product") || "";
+        const hear = formData.get("Hearaboutus")?.trim() || "";
+        const promo = formData.get("PromoCode")?.trim() || "";
+        const message = formData.get("message")?.trim() || "";
+
+        // 🔎 ALL FIELD VALIDATION
+        let isValid = true;
+
+        if (!firstName) {
+            setFieldError("firstname", "First name required");
+            isValid = false;
+        }
+        if (!lastName) {
+            setFieldError("lastname", "Last name required");
+            isValid = false;
+        }
+        if (!street) {
+            setFieldError("street", "Street address required");
+            isValid = false;
+        }
+        if (!city) {
+            setFieldError("city", "Town/City required");
+            isValid = false;
+        }
+        if (!phone) {
+            setFieldError("phone", "Phone number required");
+            isValid = false;
+        }
+        if (!email || !email.includes("@")) {
+            setFieldError("email", "Valid email required");
+            isValid = false;
+        }
+        if (!product) {
+            setFieldError("product", "Please select a product");
+            isValid = false;
+        }
+        if (!hear) {
+            setFieldError("hear", "Tell us how you heard about us");
+            isValid = false;
+        }
+        if (!message) {
+            setFieldError("message", "Message is required");
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // PHASE 1: SEND OTP
+        if (!isVerifying) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending OTP...";
+            generatedOtp = Math.floor(
+                100000 + Math.random() * 900000,
+            ).toString();
+
+            try {
+                const res = await fetch("/api/send-otp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email,
+                        otp: generatedOtp,
+                        firstName,
+                    }),
+                });
+                const result = await res.json();
+                if (result.success) {
+                    otpWrapper.style.display = "block";
+                    isVerifying = true;
+                    submitBtn.textContent = "Verify & Submit";
+                    responseEl.style.color = "#007bff";
+                    responseEl.textContent = "OTP sent to your email!";
+                } else {
+                    throw new Error();
+                }
+            } catch (error) {
+                responseEl.style.color = "red";
+                responseEl.textContent = "OTP Failed.";
+            } finally {
+                submitBtn.disabled = false;
+            }
+            return;
+        }
+
+        // PHASE 2: VERIFY OTP
+        if (otpInput.value.trim() !== generatedOtp) {
+            setFieldError("otp", "Invalid code.");
+            return;
+        }
+
+        // PHASE 3: GRAPHQL SUBMIT
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
+
+        const fullMsg = `Address: ${street}, ${city}\nProduct: ${product}\nSource: ${hear}\nPromo: ${promo}\n\nMessage: ${message}`;
+
+        try {
+            const gqlRes = await fetch(
+                "https://web.ogrelogicsolutions.com/greenmountainfencecompany.com/graphql",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        query: `mutation Submit($name: String!, $email: String!, $phone: String, $message: String!) {
+                    submitContactForm(input: { name: $name, email: $email, phone: $phone, message: $message }) {
+                        success
+                        message
+                    }
+                }`,
+                        variables: {
+                            name: `${firstName} ${lastName}`,
+                            email: email,
+                            phone: phone,
+                            message: fullMsg,
+                        },
+                    }),
+                },
+            );
+            const json = await gqlRes.json();
+            if (json.data?.submitContactForm?.success) {
+                responseEl.style.color = "green";
+                responseEl.textContent = "Success!";
+                form.reset();
+                otpWrapper.style.display = "none";
+                isVerifying = false;
+            }
+        } catch (e) {
+            responseEl.textContent = "Error submitting.";
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+</script>
+<style>
+    p#response {
+        color: #00f600 !important;
+    }
+
+    #street-error {
+        color: red;
+        font-size: 13px;
+        margin: 0;
+        display: none;
+        font-weight: 500;
+        padding: 0;
+        line-height: normal;
+    }
+</style>
