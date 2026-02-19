@@ -8,7 +8,7 @@ const CEDARPAGE = `
 query GetCedarWoodFence {
   page(id: "aluminum-fence", idType: URI) {
     title
-     seo {
+    seo {
       canonical
       cornerstone
       fullHead
@@ -22,20 +22,21 @@ query GetCedarWoodFence {
     cedarWoodFence {
       propertyTitle
       descrptionmain 
-    galleryImage {
-  nodes {
-    altText
-    sourceUrl 
-    mediaDetails {
-      sizes {
-        name  
-        sourceUrl
-        width
-        height
+      # Change the line below to include (first: 100)
+      galleryImage(first: 500) { 
+        nodes {
+          altText
+          sourceUrl 
+          mediaDetails {
+            sizes {
+              name  
+              sourceUrl
+              width
+              height
+            }
+          }
+        }
       }
-    }
-  }
-}
       mainTitlegreen
       greendescription
       greenimage {

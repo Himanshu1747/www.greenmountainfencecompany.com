@@ -22,7 +22,8 @@ query GetCedarWoodFence {
     cedarWoodFence {
       propertyTitle
       descrptionmain 
-      galleryImage {
+      # Change the line below to include (first: 500)
+      galleryImage(first: 100) { 
         nodes {
           altText
           sourceUrl 
