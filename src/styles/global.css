@@ -669,7 +669,24 @@ section.contact-sec.estimate .submite-button {
     width: 100%;
 }
 
+   .grids-data {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+     .details-data p {
+        padding: 0;
+    }
+    .details-data p a {
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 20px;
+    }
 
+        .details-data p a:hover {
+        color: var(--color-orange);
+    }
 
 @media(max-width:1600px) {
     :root {
@@ -849,6 +866,10 @@ section.contact-sec.estimate .submite-button {
     .details-holders p {
         font-size: 16px;
     }
+      .details-data p a {
+            font-size: 15px;
+            line-height: normal;
+        }
 }
 
 @media(max-width:1199px) {
@@ -967,3 +988,10 @@ section.contact-sec.estimate .submite-button {
         padding: 30px 0px 20px 0px;
     }
 }
+
+  @media(max-width:425px){
+        .details-data p a{
+            font-size: 12px;
+            line-height: normal;
+        }
+    }

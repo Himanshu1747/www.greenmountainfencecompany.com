@@ -37,22 +37,21 @@ query MainMenu {
       height
     }
   }
+  # Fetching the custom widget area here
+  topFooterWidget
 }
 `;
 
 const data = await queryWordPress(QUERY_MENU);
 const logo = data?.siteLogo?.sourceUrl;
 const rawNodes = data?.menu?.menuItems?.nodes || [];
+const topFooterHtml = data?.topFooterWidget;
 
-/** * Logic to ensure internal links are relative
- * and preserves the trailing slash if that is your preference.
- */
+/** * Logic to ensure internal links are relative */
 const makeRelative = (url) => {
     if (!url || url === "/" || url === "#") return "/";
     let path = url;
-    
     try {
-        // If it's a full URL (from WP), convert to path
         if (url.startsWith("http")) {
             const platformUrl = new URL(url);
             path = platformUrl.pathname;
@@ -60,14 +59,10 @@ const makeRelative = (url) => {
     } catch (e) {
         path = url;
     }
-
-    // Ensure path starts with /
-    if (!path.startsWith('/')) {
-        path = '/' + path;
+    if (!path.startsWith("/")) {
+        path = "/" + path;
     }
-
-    // FIX: To ENSURE trailing slash is present, use this:
-    return path.endsWith('/') ? path : `${path}/`;
+    return path.endsWith("/") ? path : `${path}/`;
 };
 
 const menuItems = rawNodes
@@ -85,25 +80,37 @@ const menuItems = rawNodes
     }));
 ---
 
-
 {logo && <link rel="preload" as="image" href={logo} fetchpriority="high" />}
 
 <header class="custom-header">
     <div class="top-headers">
-        <div class="container">
-            <div class="grids-data">
-                <div class="details-data">
-                    <p>
-                        <a href="tel:+18602920340">Contact No.: (860) 292-0340</a>
-                    </p>
+        {
+            /* If widget has data, it renders here. If empty, it falls back to your original static HTML */
+        }
+        {
+            topFooterHtml ? (
+                <div class="container" set:html={topFooterHtml} />
+            ) : (
+                <div class="container">
+                    <div class="grids-data">
+                        <div class="details-data">
+                            <p>
+                                <a href="tel:+18609810252 ">
+                                    Contact No: 860.981.0252{" "}
+                                </a>
+                            </p>
+                        </div>
+                        <div class="details-data">
+                            <p>
+                                <a href="/request-a-free-estimate-form/">
+                                    Get Your Free Estimate Today
+                                </a>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div class="details-data">
-                    <p>
-                        <a href="/request-a-free-estimate-form/">Get Your Free Estimate Today</a>
-                    </p>
-                </div>
-            </div>
-        </div>
+            )
+        }
     </div>
     <div class="main-headers">
         <div class="container">
@@ -157,7 +164,13 @@ const menuItems = rawNodes
                                     {item.children.length > 0 && (
                                         <ul class="sub-menu">
                                             {item.children.map((child) => (
-                                                <li class={child.cssClasses?.join(" ") || ""}>
+                                                <li
+                                                    class={
+                                                        child.cssClasses?.join(
+                                                            " ",
+                                                        ) || ""
+                                                    }
+                                                >
                                                     <HeaderLink
                                                         href={child.relativeUri}
                                                         title={child.label}
@@ -181,6 +194,7 @@ const menuItems = rawNodes
 <div class="margin-top"></div>
 
 <style>
+    /* ... Your existing CSS Styles ... */
     header.custom-header {
         color: var(--color-white);
         position: fixed;
@@ -188,19 +202,12 @@ const menuItems = rawNodes
         top: 0;
         z-index: 111;
     }
-    .grids-data {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 15px;
-    }
+
     .top-headers {
         background: var(--color-231F20);
         padding: 10px 0px;
     }
-    .details-data p {
-        padding: 0;
-    }
+
     .main-headers {
         background: rgba(11, 11, 11, 0.2);
         backdrop-filter: blur(5px);
@@ -218,11 +225,7 @@ const menuItems = rawNodes
         font-weight: 500;
         line-height: 20px;
     }
-    .details-data p a {
-        font-size: 18px;
-        font-weight: 500;
-        line-height: 20px;
-    }
+
     .main_logo {
         max-width: 200px;
         width: 100%;
@@ -315,9 +318,7 @@ const menuItems = rawNodes
         background: var(--color-green);
         color: var(--color-white) !important;
     }
-    .details-data p a:hover {
-        color: var(--color-orange);
-    }
+
     .margin-top {
         display: none;
     }
@@ -332,10 +333,7 @@ const menuItems = rawNodes
         .main-headers {
             padding: 10px 0px;
         }
-        .details-data p a {
-            font-size: 15px;
-            line-height: normal;
-        }
+
         .top-headers {
             padding: 7px 0px;
         }
@@ -369,6 +367,7 @@ const menuItems = rawNodes
         ul.sub-menu {
             position: static;
             width: 100%;
+            padding-top: 10px;
         }
         ul.list_data {
             flex-direction: column;
@@ -407,18 +406,10 @@ const menuItems = rawNodes
             margin-top: 106px;
         }
     }
-    @media(max-width:425px){
-            .details-data p a{
-        font-size: 12px;
-        line-height: normal;
-    }
-    }
 </style>
 
 <script is:inline>
     function setupNavigation() {
-        console.log("Navigation setup re-initialized");
-
         // Mobile menu toggle
         $(".menu-icon")
             .off("click")
@@ -433,7 +424,6 @@ const menuItems = rawNodes
             $(".menu-item-has-children")
                 .off("click")
                 .on("click", function (e) {
-                    // Only toggle if the target clicked is NOT the link itself
                     if (e.target.tagName !== "A") {
                         e.stopPropagation();
                         $(this).children(".sub-menu").slideToggle();
@@ -442,8 +432,6 @@ const menuItems = rawNodes
         }
     }
 
-    // Runs on first load
     document.addEventListener("DOMContentLoaded", setupNavigation);
-    // Runs on every View Transition (back/forward or link click)
     document.addEventListener("astro:page-load", setupNavigation);
 </script>
