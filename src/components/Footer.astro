@@ -73,3 +73,27 @@ const finalwidget = widgetRes || {};
         </div>
     </div>
 </footer>
+
+
+<script>
+    // src/middleware.js
+import { defineMiddleware } from "astro:middleware";
+
+export const onRequest = defineMiddleware((context, next) => {
+  const url = new URL(context.request.url);
+  const pathname = url.pathname;
+
+  // 1. Skip the root (/) to avoid infinite loops
+  // 2. Skip files (ending in .css, .js, .png, etc.) 
+  // 3. Check if it does NOT end with a slash
+  if (pathname !== '/' && !pathname.endsWith('/') && !pathname.includes('.')) {
+    const newUrl = `${pathname}/`;
+    
+    // Perform a Permanent Redirect (301)
+    return context.redirect(newUrl, 301);
+  }
+
+  // If it already has a slash, just continue to the page
+  return next();
+});
+</script>
