@@ -170,7 +170,7 @@ const bannerUrl = post.featuredImage?.node?.mediaItemUrl || "/placeholder.jpg";
                 <div class="blog-grids">
                     {recentBlogs.map((blogitems) => (
                         <div class="blog-holders">
-                            <a href={`/blog/${blogitems.slug}`} title={blogitems.title}>
+                            <a href={`/blog/${blogitems.slug}/`} title={blogitems.title}>
                                 <div class="main-ima">
                                     <img 
                                         src={blogitems?.featuredImage?.node?.mediaItemUrl || "/placeholder.jpg"} 
@@ -187,13 +187,13 @@ const bannerUrl = post.featuredImage?.node?.mediaItemUrl || "/placeholder.jpg";
                                 <div set:html={blogitems.excerpt} />
                                 <div class="grid-readmore">
                                     <div class="read-button">
-                                        <a href={`/blog/${blogitems.slug}`}>Read More »</a>
+                                        <a href={`/blog/${blogitems.slug}/`}>Read More »</a>
                                     </div>
                                     <div 
                                         class="sharenow native-share-btn" 
                                         style="cursor: pointer;" 
                                         data-title={blogitems.title} 
-                                        data-url={`/blog/${blogitems.slug}`}
+                                        data-url={`/blog/${blogitems.slug}/`}
                                     >
                                         <img src="/share-icon.png" alt="share" height="20" width="20" loading="lazy" />
                                     </div>

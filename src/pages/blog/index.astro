@@ -181,7 +181,7 @@ const contactBannerUrl = contactData?.backgroundImage?.node?.mediaItemUrl;
                                     data-content={blogitems.excerpt?.toLowerCase()}
                                 >
                                     <a
-                                        href={`/blog/${blogitems.slug}`}
+                                        href={`/blog/${blogitems.slug}/`}
                                         title={blogitems.title || ""}
                                     >
                                         <div class="main-ima">
@@ -209,7 +209,7 @@ const contactBannerUrl = contactData?.backgroundImage?.node?.mediaItemUrl;
                                                   ).toLocaleDateString("en-GB")
                                                 : ""}
                                         </p>
-                                        <a href={`/blog/${blogitems.slug}`}>
+                                        <a href={`/blog/${blogitems.slug}/`}>
                                             <h6 class="fs-20">
                                                 {blogitems.title || ""}
                                             </h6>
@@ -220,7 +220,7 @@ const contactBannerUrl = contactData?.backgroundImage?.node?.mediaItemUrl;
                                         <div class="grid-readmore">
                                             <div class="read-button">
                                                 <a
-                                                    href={`/blog/${blogitems.slug}`}
+                                                    href={`/blog/${blogitems.slug}/`}
                                                 >
                                                     Read More »
                                                 </a>
@@ -229,7 +229,7 @@ const contactBannerUrl = contactData?.backgroundImage?.node?.mediaItemUrl;
                                                 class="sharenow share-button"
                                                 style="cursor: pointer;"
                                                 data-title={blogitems.title}
-                                                data-url={`/blog/${blogitems.slug}`}
+                                                data-url={`/blog/${blogitems.slug}/`}
                                             >
                                                 <img
                                                     src="/share-icon.png"
