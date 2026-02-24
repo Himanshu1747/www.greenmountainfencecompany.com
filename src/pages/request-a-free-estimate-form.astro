@@ -83,7 +83,7 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl || "";
                     <div class="col-lg-12">
                         <div class="main-formholders">
                              {/* SPEED: Form is priority on this page */}
-                             <EstimateForm client:load />
+                             <EstimateForm />
                         </div>
                     </div>
                 </div>
@@ -91,7 +91,7 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl || "";
         </section>
 
         {/* SPEED: Hydrate Testimonial only when visible */}
-        <Testimonial client:visible />
+         <Testimonial client:visible />
 
         <Footer />
 

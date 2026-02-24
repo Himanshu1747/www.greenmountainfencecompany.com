@@ -9,8 +9,8 @@ export const POST = async ({ request }) => {
             port: 587,
             secure: false,
             auth: {
-                user: "tech@ogrelogic.com",
-                pass: "dtkm uzfu drmx ardl",
+                user: "greenmountainfencecompany@gmail.com",
+                pass: "jdiw kwrm sflw absj",
             },
         });
 
