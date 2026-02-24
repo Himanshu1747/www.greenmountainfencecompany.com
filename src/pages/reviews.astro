@@ -38,15 +38,17 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
         />
         {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
     </head>
-    
+
     <body>
         <Header />
 
         <main>
             <section class="innerbanner-sec">
-               <img
+                <img
                     src={bannerUrl || ""}
-                    alt={finaldata?.featuredImage?.node?.altText || finaldata?.title || ""}
+                    alt={finaldata?.featuredImage?.node?.altText ||
+                        finaldata?.title ||
+                        ""}
                     title={finaldata?.title || ""}
                     width="1920"
                     height="532"
@@ -73,41 +75,70 @@ const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl;
             </section>
         </main>
 
-        <script is:inline>
-          function reloadWidgetScript() {
-            const container = document.getElementById('indexReviewsWidget');
-            if (!container) return;
-            container.innerHTML = "";
-            const oldScript = document.getElementById('survly-script');
-            if (oldScript) oldScript.remove();
+        <script >
+            (function () {
+                function injectWidget() {
+                    const container =
+                        document.getElementById("indexReviewsWidget");
+                    if (!container) return;
 
-            const newScript = document.createElement('script');
-            newScript.id = 'survly-script';
-            newScript.src = "https://survlywidget.firebaseapp.com/static/js/index.js";
-            newScript.async = true;
-            newScript.onload = () => {
-                if (typeof renderApp === 'function') {
-                    renderApp();
-                    console.log("Widget script and CSS loaded fresh.");
+                    // Clean up previous attempts
+                    const oldScript = document.getElementById(
+                        "survly-script-loader",
+                    );
+                    if (oldScript) oldScript.remove();
+
+                    const script = document.createElement("script");
+                    script.id = "survly-script-loader";
+                    // Adding a timestamp cache-buster to ensure a fresh fetch
+                    script.src =
+                        "https://survlywidget.firebaseapp.com/static/js/index.js?v=" +
+                        new Date().getTime();
+                    script.async = true;
+
+                    script.onload = () => {
+                        console.log(
+                            "Survly script loaded. Attempting render...",
+                        );
+                        // Poll for the render function in case of slow execution
+                        let attempts = 0;
+                        const checkRender = setInterval(() => {
+                            if (typeof window.renderApp === "function") {
+                                window.renderApp();
+                                clearInterval(checkRender);
+                                console.log("Widget Rendered Successfully");
+                            }
+                            if (attempts > 20) clearInterval(checkRender); // Stop after 2 seconds
+                            attempts++;
+                        }, 100);
+                    };
+
+                    document.body.appendChild(script);
                 }
-            };
 
-            document.body.appendChild(newScript);
-          }
-          reloadWidgetScript();
-          document.addEventListener('astro:page-load', reloadWidgetScript);
+                // Run on initial load
+                if (document.readyState === "complete") {
+                    injectWidget();
+                } else {
+                    window.addEventListener("load", injectWidget);
+                }
+
+                // Run on Astro navigation
+                document.addEventListener("astro:page-load", injectWidget);
+                document.addEventListener("astro:after-swap", injectWidget);
+            })();
         </script>
 
         <style is:global>
             #indexReviewsWidget img {
-                max-width: 50px !important; 
+                max-width: 50px !important;
                 height: auto !important;
             }
-            #indexReviewsWidget .review-item { 
+            #indexReviewsWidget .review-item {
                 margin-bottom: 20px;
                 border-bottom: 1px solid #eee;
             }
-            
+
             section.review-data {
                 padding: 40px 0px;
                 min-height: 600px;
