@@ -6,7 +6,7 @@ import Footer from "../../components/Footer.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import Header from "../../components/Header.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
-import ContactForm from "../../components/ContactForm";
+import Contactform from "../../components/Contactform.astro";
 
 Astro.response.headers.set(
   'Cache-Control',
@@ -271,7 +271,7 @@ const contactBannerUrl = contactData?.backgroundImage?.node?.mediaItemUrl;
             />
             <div class="container">
                 <div class="main-formholders blog">
-                    <ContactForm client:load />
+                   <Contactform/>
                 </div>
             </div>
         </section>
