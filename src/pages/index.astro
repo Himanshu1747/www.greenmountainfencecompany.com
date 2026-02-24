@@ -7,15 +7,11 @@ import Header from "../components/Header.astro";
 import Homeslider from "../components/Homeslider.astro";
 import Testimonial from "../components/Testimonial.astro";
 import Tipsfaq from "../components/Tipsfaq.astro";
-import ContactForm from "../components/ContactForm";
 
-// Set Cache-Control for High Web Speed Performance
-// Astro.response.headers.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=30');
-
-// Disable caching via headers
-Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-Astro.response.headers.set('Pragma', 'no-cache');
-Astro.response.headers.set('Expires', '0');
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, s-maxage=120, stale-while-revalidate=30'
+);
 
 const HOMEDATA = `
 query Homepage {
@@ -72,7 +68,6 @@ const responsedata = pagedata?.page || {};
 const homepage = responsedata?.homepage || {};
 const seodata = responsedata?.seo || {};
 
-// Your requested mapping
 const videoPoster = homepage?.videoPoster?.node?.mediaItemUrl || "";
 const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
 ---
@@ -87,11 +82,12 @@ const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
         />
         {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
         
-        {/* Performance Optimization: Preload the video poster if it exists */}
-        {videoPoster && <link rel="preload" as="image" href={videoPoster} />}
+        {/* LCP Optimization for Video Poster if it's the main visual */}
+        {videoPoster && <link rel="preload" as="image" href={videoPoster} fetchpriority="low" />}
     </head>
     <body>
         <Header />
+        
         <Homeslider />
 
         <section class="matchbeatdata-sec">
@@ -112,6 +108,7 @@ const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
                 loading="lazy"
                 decoding="async"
                 class="overlays-image"
+                style="aspect-ratio: 1920 / 466; object-fit: cover;"
             />
             <div class="container">
                 <div class="row profesional-row">
@@ -127,13 +124,13 @@ const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
                         <div class="instalation-image">
                             <img
                                 src={homepage?.professionalImage?.node?.sourceUrl || ""}
-                                alt={homepage?.title || ""}
+                                alt={homepage?.professionalImage?.node?.altText || homepage?.title || ""}
                                 title={homepage?.title || ""}
                                 width="551"
                                 height="598"
                                 loading="lazy"
                                 decoding="async"
-                                style="content-visibility: auto;"
+                                style="content-visibility: auto; aspect-ratio: 551 / 598; object-fit: cover;"
                             />
                         </div>
                     </div>
@@ -162,20 +159,22 @@ const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
                         poster={videoPoster}
                         class="aboutvideos"
                         controls
-                        preload="metadata"
+                        preload="none"
                         height="590"
                         width="953"
-                        playsinline></video>
+                        playsinline
+                        style="aspect-ratio: 953 / 590; background: #000;"></video>
                 </div>
                 <div class="homeabout-details">
                     <img
                         src="/mountain-image.png"
-                        alt="image"
+                        alt="mountain decoration"
                         width="547"
                         height="162"
                         loading="lazy"
                         decoding="async"
                         class="mountain-image"
+                        style="aspect-ratio: 547 / 162;"
                     />
                     <div class="about-holders">
                         <h3 class="fs-80">
@@ -189,13 +188,13 @@ const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
                                 title={homepage?.aboutButton?.title || ""}
                                 target={homepage?.aboutButton?.target || "_self"}
                                 class="link-button"
-                                ><span>{homepage?.aboutButton?.title || ""}</span>
+                                ><span>{homepage?.aboutButton?.title || "Read More"}</span>
                                 <img
                                     src="/right-icon.png"
                                     alt=""
                                     height="20"
                                     width="20"
-                                    loading="eager"
+                                    loading="lazy" 
                                 /></a
                             >
                         </div>
@@ -205,162 +204,55 @@ const videoUrl = homepage?.video?.node?.mediaItemUrl || "";
         </section>
 
         <Testimonial />
-
         <Tipsfaq />
-
         <Footer />
 
         <style>
+            .banner-image { width: 100%; height: auto; display: block; }
             section.matchbeatdata-sec {
                 padding: 44px 0px;
                 text-align: center;
                 background: var(--color-green);
                 color: var(--color-white);
             }
-            .about-profesional li {
-                list-style: disc;
-            }
-
-            .about-profesional ul {
-                padding-left: 30px;
-            }
-            .instalation-image {
-                max-width: 551px;
-                width: 100%;
-                margin-left: auto;
-            }
-            .about-profesional {
-                max-width: 904px;
-                width: 100%;
-            }
-            .profesional-sec {
-                position: relative;
-                padding-top: 100px;
-                padding-bottom: 30px;
-            }
-            .abouthome-grid {
-                display: flex;
-                align-items: center;
-            }
-
-            .about-video,
-            .homeabout-details {
-                max-width: 50%;
-                width: 100%;
-            }
-
-            .aboutvideos {
-                width: 100%;
-                height:auto;
-                object-fit: cover;
-                /* object-position: center left; */
-            }
-
-            /* .about-video {
-                height: 818px;
-                overflow: hidden;
-            } */
-
-            section.homeabout-sec {
-                background: var(--color-green);
-                color: var(--color-white);
-            }
-
-            .about-holders {
-                max-width: 90%;
-                width: 100%;
-                padding: 20px 0px;
-            }
-
-            .homeabout-details {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
-                z-index: 1;
-            }
-
-            .about-holders .arrow-icon {
-                padding-top: 20px;
-            }
-
-            .about-holders .arrow-icon .link-button:hover {
-                background: var(--color-white);
-                color: var(--color-green);
-            }
-
-            .about-holders .arrow-icon .link-button:hover img {
-                filter: invert(0);
-            }
-
-            .mountain-image {
-                position: absolute;
-                bottom: 0;
-                right: 0;
-                z-index: -1;
-                max-width: 547px;
-                width: 100%;
-            }
+            .about-profesional li { list-style: disc; }
+            .about-profesional ul { padding-left: 30px; }
+            .instalation-image { max-width: 551px; width: 100%; margin-left: auto; }
+            .about-profesional { max-width: 904px; width: 100%; }
+            .profesional-sec { position: relative; padding-top: 100px; padding-bottom: 30px; }
+            .abouthome-grid { display: flex; align-items: center; }
+            .about-video, .homeabout-details { max-width: 50%; width: 100%; }
+            .aboutvideos { width: 100%; height:auto; object-fit: cover; }
+            section.homeabout-sec { background: var(--color-green); color: var(--color-white); }
+            .about-holders { max-width: 90%; width: 100%; padding: 20px 0px; }
+            .homeabout-details { display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; }
+            .about-holders .arrow-icon { padding-top: 20px; }
+            .about-holders .arrow-icon .link-button:hover { background: var(--color-white); color: var(--color-green); }
+            .about-holders .arrow-icon .link-button:hover img { filter: invert(0); }
+            .mountain-image { position: absolute; bottom: 0; right: 0; z-index: -1; max-width: 547px; width: 100%; }
 
             @media (max-width: 1600px) {
-                .profesional-sec {
-                    padding-top: 70px;
-                }
-                .about-profesional {
-                    max-width: 95%;
-                }
-
-                /* .about-video {
-                    height: 650px;
-                } */
-
-                section.matchbeatdata-sec {
-                    padding: 15px 0px;
-                }
+                .profesional-sec { padding-top: 70px; }
+                .about-profesional { max-width: 95%; }
+                section.matchbeatdata-sec { padding: 15px 0px; }
             }
             @media (max-width: 1400px) {
-                .mountain-image {
-                    max-width: 350px;
-                }
+                .mountain-image { max-width: 350px; }
             }
             @media (max-width: 1199px) {
-                .instalation-image {
-                    margin: 0 auto;
-                }
-                .about-profesional {
-                    max-width: 100%;
-                }
-                .profesional-row {
-                    gap: 20px;
-                }
-                section.profesional-sec {
-                    padding: 40px 0px;
-                }
+                .instalation-image { margin: 0 auto; }
+                .about-profesional { max-content: 100%; }
+                .profesional-row { gap: 20px; }
+                section.profesional-sec { padding: 40px 0px; }
             }
             @media (max-width: 991px) {
-                .abouthome-grid {
-                    flex-direction: column;
-                    gap: 30px;
-                }
-
-                .about-video {
-                    height: auto;
-                }
-                .about-video,
-                .homeabout-details {
-                    max-width: 100%;
-                    padding: 0px;
-                }
-                .about-holders {
-                    max-width: 95%;
-                    padding: 0;
-                    padding-bottom: 30px;
-                }
+                .abouthome-grid { flex-direction: column; gap: 30px; }
+                .about-video { height: auto; }
+                .about-video, .homeabout-details { max-width: 100%; padding: 0px; }
+                .about-holders { max-width: 95%; padding: 0; padding-bottom: 30px; }
             }
             @media (max-width: 767px) {
-                section.profesional-sec {
-                    padding: 30px 0px;
-                }
+                section.profesional-sec { padding: 30px 0px; }
             }
         </style>
     </body>

@@ -8,6 +8,11 @@ import Header from "../../components/Header.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 import ContactForm from "../../components/ContactForm";
 
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, s-maxage=120, stale-while-revalidate=30'
+);
+
 /** * SPEED OPTIMIZATION:
  * Combined parallel fetching for all page and blog data.
  */

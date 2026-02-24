@@ -12,112 +12,51 @@ query Estimatespage {
 }
 `;
 
-// Fetch the data
 const response = await queryWordPress(QURYDATA);
 const content = response.page;
 ---
 
 <div class="contactform-holders data-estimate">
-<div class="centerdata-form">
-    <h4 class="fs-30">{content?.requestAEstimate?.formTitle || "error"}</h4>
-    <div set:html={content?.requestAEstimate?.formDesc || "error"}></div>
-</div>
+    <div class="centerdata-form">
+        <h4 class="fs-30">{content?.requestAEstimate?.formTitle || "Request a Free Estimate"}</h4>
+        <div set:html={content?.requestAEstimate?.formDesc || ""}></div>
+    </div>
     <form id="contactForm">
         <div class="row">
             <div class="col-md-6">
                 <div class="univers-input">
-                    <input
-                        type="text"
-                        name="firstname"
-                        id="firstname"
-                        placeholder="First Name"
-                    />
-                    <p
-                        id="firstname-error"
-                        class="error-msg"
-                        style="color:red; display:none; font-size:12px;"
-                    >
-                    </p>
+                    <input type="text" name="firstname" id="firstname" placeholder="First Name" />
+                    <p id="firstname-error" class="error-msg"></p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="univers-input">
-                    <input
-                        type="text"
-                        name="lastname"
-                        id="lastname"
-                        placeholder="Last Name"
-                    />
-                    <p
-                        id="lastname-error"
-                        class="error-msg"
-                        style="color:red; display:none; font-size:12px;"
-                    >
-                    </p>
+                    <input type="text" name="lastname" id="lastname" placeholder="Last Name" />
+                    <p id="lastname-error" class="error-msg"></p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="univers-input">
-                    <input
-                        type="text"
-                        name="StreetAddress"
-                        id="street"
-                        placeholder="Street Address"
-                    />
-                    <p
-                        id="street-error"
-                        class="error-msg"
-                        style="color:red; display:none; font-size:12px;"
-                    >
-                    </p>
+                    <input type="text" name="StreetAddress" id="street" placeholder="Street Address" />
+                    <p id="street-error" class="error-msg"></p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="univers-input">
-                    <input
-                        type="text"
-                        name="TownCity"
-                        id="city"
-                        placeholder="Town/City"
-                    />
-                    <p
-                        id="city-error"
-                        class="error-msg"
-                        style="color:red; display:none; font-size:12px;"
-                    >
-                    </p>
+                    <input type="text" name="TownCity" id="city" placeholder="Town/City" />
+                    <p id="city-error" class="error-msg"></p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="univers-input">
-                    <input
-                        type="text"
-                        name="Phone"
-                        id="phone"
-                        placeholder="Phone"
-                    />
-                    <p
-                        id="phone-error"
-                        class="error-msg"
-                        style="color:red; display:none; font-size:12px;"
-                    >
-                    </p>
+                    <input type="text" name="Phone" id="phone" placeholder="Phone" />
+                    <p id="phone-error" class="error-msg"></p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="univers-input">
-                    <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        placeholder="Your Email"
-                    />
-                    <p
-                        id="email-error"
-                        class="error-msg"
-                        style="color:red; display:none; font-size:12px;"
-                    >
-                    </p>
+                    <input type="email" name="email" id="email" placeholder="Your Email" />
+                    <p id="email-error" class="error-msg"></p>
                 </div>
             </div>
             <div class="col-md-12">
@@ -126,88 +65,42 @@ const content = response.page;
                         <option value="">Select Product</option>
                         <option value="Cedar/Wood Fence">Cedar Fences</option>
                         <option value="Vinyl Fence">Vinyl Fence</option>
-                        <option value="Chain Link Fence"
-                            >Chain-Link Fence</option
-                        >
+                        <option value="Chain Link Fence">Chain-Link Fence</option>
                         <option value="Aluminum Fence">Aluminum Fence</option>
                     </select>
-                    <p
-                        id="product-error"
-                        class="error-msg"
-                        style="color:red; display:none; font-size:12px;"
-                    >
-                    </p>
+                    <p id="product-error" class="error-msg"></p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="univers-input">
-                    <input
-                        type="text"
-                        name="Hearaboutus"
-                        id="hear"
-                        placeholder="How Did You Hear About Us?"
-                    />
-                    <p
-                        id="hear-error"
-                        class="error-msg"
-                        style="color:red; display:none; font-size:12px;"
-                    >
-                    </p>
+                    <input type="text" name="Hearaboutus" id="hear" placeholder="How Did You Hear About Us?" />
+                    <p id="hear-error" class="error-msg"></p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="univers-input">
-                    <input
-                        type="text"
-                        name="PromoCode"
-                        id="promo"
-                        placeholder="Promo Code"
-                    />
+                    <input type="text" name="PromoCode" id="promo" placeholder="Promo Code" />
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="univers-input">
-                    <textarea
-                        name="message"
-                        id="message"
-                        placeholder="Your Message"
-                        rows="5"></textarea>
-                    <p
-                        id="message-error"
-                        class="error-msg"
-                        style="color:red; display:none; font-size:12px;"
-                    >
-                    </p>
+                    <textarea name="message" id="message" placeholder="Your Message" rows="5"></textarea>
+                    <p id="message-error" class="error-msg"></p>
                 </div>
             </div>
 
-            <div
-                class="col-md-12"
-                id="otp-wrapper"
-                style="display:none; margin-top:15px;"
-            >
+            <div class="col-md-12" id="otp-wrapper" style="display:none; margin-top:15px;">
                 <div class="univers-input">
-                    <input
-                        type="number"
-                        id="otp-input"
-                        placeholder="Enter 6-Digit OTP"
-                    />
-                    <p
-                        id="otp-error"
-                        class="error-msg"
-                        style="color:red; font-size:12px; display:none;"
-                    >
-                    </p>
+                    <input type="number" id="otp-input" placeholder="Enter 6-Digit OTP" />
+                    <p id="otp-error" class="error-msg"></p>
                 </div>
             </div>
 
             <div class="col-md-12">
                 <div class="submit-button">
-                    <button type="submit" id="submitBtn" class="submite-button"
-                        >Send Message</button
-                    >
+                    <button type="submit" id="submitBtn" class="submite-button">Send Message</button>
                 </div>
-                <p id="response" style="margin-top:15px; font-weight:bold;"></p>
+                <div id="response" style="margin-top:20px; font-weight:normal; line-height: 1.6;"></div>
             </div>
         </div>
     </form>
@@ -238,12 +131,9 @@ const content = response.page;
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Reset errors
-        document.querySelectorAll(".error-msg").forEach((el) => {
-            el.style.display = "none";
-            el.textContent = "";
-        });
-        responseEl.textContent = "";
+        // Reset display
+        document.querySelectorAll(".error-msg").forEach(el => { el.style.display = "none"; });
+        responseEl.innerHTML = "";
 
         const formData = new FormData(form);
         const firstName = formData.get("firstname")?.trim() || "";
@@ -257,45 +147,17 @@ const content = response.page;
         const promo = formData.get("PromoCode")?.trim() || "";
         const message = formData.get("message")?.trim() || "";
 
-        // 🔎 ALL FIELD VALIDATION
+        // Validation
         let isValid = true;
-
-        if (!firstName) {
-            setFieldError("firstname", "First name required");
-            isValid = false;
-        }
-        if (!lastName) {
-            setFieldError("lastname", "Last name required");
-            isValid = false;
-        }
-        if (!street) {
-            setFieldError("street", "Street address required");
-            isValid = false;
-        }
-        if (!city) {
-            setFieldError("city", "Town/City required");
-            isValid = false;
-        }
-        if (!phone) {
-            setFieldError("phone", "Phone number required");
-            isValid = false;
-        }
-        if (!email || !email.includes("@")) {
-            setFieldError("email", "Valid email required");
-            isValid = false;
-        }
-        if (!product) {
-            setFieldError("product", "Please select a product");
-            isValid = false;
-        }
-        if (!hear) {
-            setFieldError("hear", "Tell us how you heard about us");
-            isValid = false;
-        }
-        if (!message) {
-            setFieldError("message", "Message is required");
-            isValid = false;
-        }
+        if (!firstName) { setFieldError("firstname", "First name required"); isValid = false; }
+        if (!lastName) { setFieldError("lastname", "Last name required"); isValid = false; }
+        if (!street) { setFieldError("street", "Street address required"); isValid = false; }
+        if (!city) { setFieldError("city", "Town/City required"); isValid = false; }
+        if (!phone) { setFieldError("phone", "Phone number required"); isValid = false; }
+        if (!email || !email.includes("@")) { setFieldError("email", "Valid email required"); isValid = false; }
+        if (!product) { setFieldError("product", "Please select a product"); isValid = false; }
+        if (!hear) { setFieldError("hear", "Tell us how you heard about us"); isValid = false; }
+        if (!message) { setFieldError("message", "Message is required"); isValid = false; }
 
         if (!isValid) return;
 
@@ -303,19 +165,13 @@ const content = response.page;
         if (!isVerifying) {
             submitBtn.disabled = true;
             submitBtn.textContent = "Sending OTP...";
-            generatedOtp = Math.floor(
-                100000 + Math.random() * 900000,
-            ).toString();
+            generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
             try {
                 const res = await fetch("/api/send-otp", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        email,
-                        otp: generatedOtp,
-                        firstName,
-                    }),
+                    body: JSON.stringify({ email, otp: generatedOtp, firstName }),
                 });
                 const result = await res.json();
                 if (result.success) {
@@ -324,25 +180,23 @@ const content = response.page;
                     submitBtn.textContent = "Verify & Submit";
                     responseEl.style.color = "#007bff";
                     responseEl.textContent = "OTP sent to your email!";
-                } else {
-                    throw new Error();
-                }
+                } else { throw new Error(); }
             } catch (error) {
                 responseEl.style.color = "red";
-                responseEl.textContent = "OTP Failed.";
+                responseEl.textContent = "Failed to send OTP.";
             } finally {
                 submitBtn.disabled = false;
             }
             return;
         }
 
-        // PHASE 2: VERIFY OTP
+        // PHASE 2: FINAL SUBMISSION
         if (otpInput.value.trim() !== generatedOtp) {
             setFieldError("otp", "Invalid code.");
             return;
         }
 
-        // PHASE 3: GRAPHQL SUBMIT
+        // Change button to Submitting... immediately
         submitBtn.disabled = true;
         submitBtn.textContent = "Submitting...";
 
@@ -350,17 +204,17 @@ const content = response.page;
 
         try {
             const gqlRes = await fetch(
-                "https://web.ogrelogicsolutions.com/greenmountainfencecompany.com/graphql",
+                "https://admin.greenmountainfencecompany.com/graphql",
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         query: `mutation Submit($name: String!, $email: String!, $phone: String, $message: String!) {
-                    submitContactForm(input: { name: $name, email: $email, phone: $phone, message: $message }) {
-                        success
-                        message
-                    }
-                }`,
+                            submitContactForm(input: { name: $name, email: $email, phone: $phone, message: $message }) {
+                                success
+                                message
+                            }
+                        }`,
                         variables: {
                             name: `${firstName} ${lastName}`,
                             email: email,
@@ -368,35 +222,49 @@ const content = response.page;
                             message: fullMsg,
                         },
                     }),
-                },
+                }
             );
+
             const json = await gqlRes.json();
             if (json.data?.submitContactForm?.success) {
-                responseEl.style.color = "green";
-                responseEl.textContent = "Success!";
+                responseEl.style.color = "#28a745";
+                // EXACT MESSAGE FORMAT AS REQUESTED
+                responseEl.innerHTML = `Hi ${firstName} ${lastName}, <br> <br>
+                Thank you for your interest in ${product} and for submitting your inquiry through our website. This email is to confirm that we have successfully received your product inquiry.
+                <br> <br>
+                We truly appreciate your interest in ${product}. Our team will carefully review your request and get back to you with the relevant details at the earliest possible convenience.`;
+                
                 form.reset();
                 otpWrapper.style.display = "none";
                 isVerifying = false;
+                submitBtn.textContent = "Send Message"; // Reset for next use
+            } else {
+                responseEl.style.color = "red";
+                responseEl.textContent = "Something went wrong. Please try again.";
             }
         } catch (e) {
-            responseEl.textContent = "Error submitting.";
+            responseEl.style.color = "red";
+            responseEl.textContent = "Submission error.";
         } finally {
             submitBtn.disabled = false;
         }
     });
 </script>
+
 <style>
-    p#response {
-        color: #00f600 !important;
+    .error-msg {
+        color: red;
+        font-size: 12px;
+        display: none;
+        margin: 4px 0;
+    }
+    #response br {
+        display: block;
+        margin: 10px 0;
+        content: " ";
     }
 
-    #street-error {
-        color: red;
-        font-size: 13px;
-        margin: 0;
-        display: none;
-        font-weight: 500;
-        padding: 0;
-        line-height: normal;
-    }
+    div#response {
+    color: #fff !important;
+}
 </style>

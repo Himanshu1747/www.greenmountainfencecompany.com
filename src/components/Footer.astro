@@ -25,6 +25,7 @@ query GetFooterData {
 }
 `;
 
+// Parallel fetching is already good for speed
 const [menuRes, widgetRes] = await Promise.all([
   queryWordPress(footermu),
   queryWordPress(widgetdataaa)
@@ -38,6 +39,10 @@ const finalwidget = widgetRes || {};
     <div class="container">
         <div class="grid-footer">
             <div class="logo-data">
+                {/* SPEED TIP: Ensure images inside these widgets 
+                   have loading="lazy" and decoding="async" set 
+                   on the WordPress side if possible. 
+                */}
                 <div set:html={finalwidget.footerlogo || ""}></div>
                 <div set:html={finalwidget.footerbottom || ""}></div>
             </div>
@@ -74,26 +79,12 @@ const finalwidget = widgetRes || {};
     </div>
 </footer>
 
-
-<script>
-    // src/middleware.js
-import { defineMiddleware } from "astro:middleware";
-
-export const onRequest = defineMiddleware((context, next) => {
-  const url = new URL(context.request.url);
-  const pathname = url.pathname;
-
-  // 1. Skip the root (/) to avoid infinite loops
-  // 2. Skip files (ending in .css, .js, .png, etc.) 
-  // 3. Check if it does NOT end with a slash
-  if (pathname !== '/' && !pathname.endsWith('/') && !pathname.includes('.')) {
-    const newUrl = `${pathname}/`;
-    
-    // Perform a Permanent Redirect (301)
-    return context.redirect(newUrl, 301);
-  }
-
-  // If it already has a slash, just continue to the page
-  return next();
-});
-</script>
+<style>
+    /* SPEED OPTIMIZATION: 
+       Using 'contain: content' tells the browser the footer 
+       doesn't affect the layout of the top of the page.
+    */
+    .custom-footer {
+        contain: content;
+    }
+</style>

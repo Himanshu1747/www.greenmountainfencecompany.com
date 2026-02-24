@@ -4,6 +4,12 @@ import BaseHead from "../components/BaseHead.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 
+// 1. PERFORMANCE: No-cache store to ensure fresh data and zero storage lag
+// Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, s-maxage=120, stale-while-revalidate=30'
+);
 const WHYCHOOSE=`
 query whychoosus {
   page(id: "why-choose-us", idType: URI) {
@@ -44,12 +50,15 @@ query whychoosus {
   }
 }
 `
-const pagedata=await queryWordPress(WHYCHOOSE);
-const finaldata=pagedata.page;
-const pagelinks=finaldata.whyChooseUs.pageLink
+const pagedata = await queryWordPress(WHYCHOOSE);
+const finaldata = pagedata?.page || {};
+const whyData = finaldata?.whyChooseUs || {};
+const pagelinks = whyData?.pageLink || [];
 const seodata = finaldata?.seo || {};
 
-
+// Banner URL for LCP Optimization
+const bannerUrl = finaldata?.featuredImage?.node?.mediaItemUrl || "";
+const videoPosterUrl = whyData?.videoPoster?.node?.mediaItemUrl || "";
 ---
 
 <!doctype html>
@@ -61,25 +70,31 @@ const seodata = finaldata?.seo || {};
             focuskw={seodata?.focuskw || ""}
         />
         {seodata?.fullHead && <Fragment set:html={seodata.fullHead} />}
+        
+        {/* LCP PRIORITY: Preload hero banner immediately */}
+        {bannerUrl && (
+            <link rel="preload" as="image" href={bannerUrl} fetchpriority="high" />
+        )}
     </head>
     <body>
         <Header />
 
         <section class="innerbanner-sec">
             <img
-                src={finaldata?.featuredImage?.node?.mediaItemUrl || "error"}
-                alt={finaldata?.title || "error"}
-                title={finaldata?.title || "error"}
+                src={bannerUrl}
+                alt={finaldata?.featuredImage?.node?.altText || finaldata?.title || ""}
+                title={finaldata?.title || ""}
                 width="1920"
                 height="532"
                 loading="eager"
                 fetchpriority="high"
                 decoding="sync"
                 class="banner-image"
+                style="aspect-ratio: 1920 / 532; object-fit: cover;"
             />
             <div class="container">
                 <div class="allabout-banner">
-                    <h1 class="fs-80">{finaldata?.title || "error"}</h1>
+                    <h1 class="fs-80">{finaldata?.title || ""}</h1>
                 </div>
             </div>
         </section>
@@ -89,32 +104,32 @@ const seodata = finaldata?.seo || {};
                 <div class="row align-items-center">
                     <div class="col-xl-7">
                         <div class="choose-holders">
-                            <h2 class="fs-60">{finaldata?.whyChooseUs?.whyChooseTitle || "error"}</h2>
-                            <div set:html={finaldata?.whyChooseUs?.whyChosseDesc || "error"}></div>
+                            <h2 class="fs-60">{whyData?.whyChooseTitle || ""}</h2>
+                            <div set:html={whyData?.whyChosseDesc || ""}></div>
                         </div>
                     </div>
                     <div class="col-xl-5">
                         <div class="aboutvideo">
                             <video
-                                src={finaldata?.whyChooseUs?.mainVideo?.node?.mediaItemUrl || "error"}
-                                poster={finaldata?.whyChooseUs?.videoPoster?.node?.mediaItemUrl || "error"}
+                                src={whyData?.mainVideo?.node?.mediaItemUrl || ""}
+                                poster={videoPosterUrl}
                                 width="671"
                                 height="380"
                                 controls
                                 playsinline
-                                preload="metadata"></video>
+                                preload="none"
+                                style="aspect-ratio: 671 / 380; background: #000;"></video>
                         </div>
                     </div>
                 </div>
-                <div class="bottm-data" set:html={finaldata?.whyChooseUs?.bottomParagraph || "error"}></div>
+                <div class="bottm-data" set:html={whyData?.bottomParagraph || ""}></div>
                 <div class="green-section">
                     <ol>
                         {
-                            pagelinks.map((items)=>{
-                                return <li><a href={items?.pageLinks?.url || "error"} title={items?.pageLinks?.title || "error"} >{items?.pageLinks?.title || "error"}</a></li>
+                            pagelinks.map((items) => {
+                                return <li><a href={items?.pageLinks?.url || "#"} title={items?.pageLinks?.title || ""} >{items?.pageLinks?.title || ""}</a></li>
                             })
                         }
-                        
                     </ol>
                 </div>
             </div>
@@ -122,78 +137,19 @@ const seodata = finaldata?.seo || {};
 
         <Footer />
         <style>
-            .choose-holders {
-                max-width: 805px;
-                width: 100%;
-            }
-            .bottm-data {
-                padding-top: 50px;
-            }
-
-            .green-section {
-                background: var(--color-green);
-                color: var(--color-white);
-                padding: 25px;
-                margin-top: 30px;
-            }
-            .green-section ol li {
-                /* list-style: num; */
-                font-size: var(--fs-25);
-                font-style: normal;
-                font-weight: 700;
-                line-height: normal;
-            }
-            .green-section ol {
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
-                max-width: 66%;
-                width: 100%;
-                row-gap: 30px;
-                column-gap: 125px;
-                margin: 0 auto;
-                padding: 0;
-            }
-            section.whychoose-sec {
-                padding: 90px 0px;
-                overflow: hidden;
-            }
-            .aboutvideo video {
-                width: 100%;
-            }
-            .aboutvideo {
-                max-width: 660px;
-                width: 100%;
-                margin: 0 auto;
-            }
-            @media (max-width: 1600px) {
-                section.whychoose-sec {
-                    padding: 70px 0px;
-                }
-            }
-            @media (max-width: 1400px) {
-                .bottm-data {
-                    padding-top: 30px;
-                }
-                section.whychoose-sec {
-                    padding: 50px 0px;
-                }
-            }
-            @media (max-width: 1199px) {
-                .green-section ol {
-                    max-width: 100%;
-                    row-gap: 20px;
-                    column-gap: 60px;
-                }
-                .choose-holders {
-                    padding-bottom: 30px;
-                }
-            }
-            @media (max-width: 767px) {
-                section.whychoose-sec {
-                    padding: 30px 0px;
-                }
-            }
+            .banner-image { width: 100%; height: auto; display: block; }
+            .choose-holders { max-width: 805px; width: 100%; }
+            .bottm-data { padding-top: 50px; }
+            .green-section { background: var(--color-green); color: var(--color-white); padding: 25px; margin-top: 30px; }
+            .green-section ol li { font-size: var(--fs-25); font-style: normal; font-weight: 700; line-height: normal; }
+            .green-section ol { display: flex; justify-content: center; flex-wrap: wrap; max-width: 66%; width: 100%; row-gap: 30px; column-gap: 125px; margin: 0 auto; padding: 0; }
+            section.whychoose-sec { padding: 90px 0px; overflow: hidden; }
+            .aboutvideo video { width: 100%; height: auto; }
+            .aboutvideo { max-width: 660px; width: 100%; margin: 0 auto; }
+            @media (max-width: 1600px) { section.whychoose-sec { padding: 70px 0px; } }
+            @media (max-width: 1400px) { .bottm-data { padding-top: 30px; } section.whychoose-sec { padding: 50px 0px; } }
+            @media (max-width: 1199px) { .green-section ol { max-width: 100%; row-gap: 20px; column-gap: 60px; } .choose-holders { padding-bottom: 30px; } }
+            @media (max-width: 767px) { section.whychoose-sec { padding: 30px 0px; } }
         </style>
     </body>
 </html>

@@ -37,7 +37,6 @@ query Homepage {
 }
 `;
 
-// Fetch data in parallel
 const [datasliders, homdata] = await Promise.all([
     queryWordPress(QUERY_HOMESLIDER),
     queryWordPress(HOMEDATA),
@@ -47,35 +46,29 @@ const nodes = datasliders?.homeSliders?.nodes || [];
 const finaldata = homdata?.page?.homepage;
 const firstSlide = nodes[0];
 const preloadDesktop = firstSlide?.featuredImage?.node?.sourceUrl;
-const preloadMobile =
-    firstSlide?.homeslidermain?.mobileBanner?.node?.mediaItemUrl;
+const preloadMobile = firstSlide?.homeslidermain?.mobileBanner?.node?.mediaItemUrl;
 ---
 
-{/* Preload for Desktop (Screens wider than 606px) */}
-{
-    preloadDesktop && (
-        <link
-            rel="preload"
-            as="image"
-            href={preloadDesktop}
-            media="(min-width: 607px)"
-            fetchpriority="high"
-        />
-    )
-}
+{/* OPTIMIZATION: High-priority Preloads with specific Media Queries */}
+{preloadDesktop && (
+    <link
+        rel="preload"
+        as="image"
+        href={preloadDesktop}
+        media="(min-width: 607px)"
+        fetchpriority="high"
+    />
+)}
 
-{/* Preload for Mobile (Screens 606px and smaller) */}
-{
-    preloadMobile && (
-        <link
-            rel="preload"
-            as="image"
-            href={preloadMobile}
-            media="(max-width: 606px)"
-            fetchpriority="high"
-        />
-    )
-}
+{preloadMobile && (
+    <link
+        rel="preload"
+        as="image"
+        href={preloadMobile}
+        media="(max-width: 606px)"
+        fetchpriority="high"
+    />
+)}
 
 <section class="homeslider-sec">
     <div class="container">
@@ -92,6 +85,7 @@ const preloadMobile =
                         height="20"
                         width="20"
                         loading="eager"
+                        fetchpriority="high" 
                     />
                 </a>
             </div>
@@ -103,42 +97,29 @@ const preloadMobile =
                 {
                     nodes.map((slide, index) => {
                         const imagepath = slide.featuredImage?.node?.sourceUrl;
-                        const mobilepath =
-                            slide.homeslidermain?.mobileBanner?.node
-                                ?.mediaItemUrl;
-                        const altText =
-                            slide.homeslidermain?.mobileBanner?.node?.altText ||
-                            "Fence Excellence";
+                        const mobilepath = slide.homeslidermain?.mobileBanner?.node?.mediaItemUrl;
+                        const altText = slide.homeslidermain?.mobileBanner?.node?.altText || "Fence Excellence";
+                        const isFirst = index === 0;
 
                         return (
                             <div class="swiper-slide" key={slide.id}>
                                 <div class="slider-image">
                                     <picture>
-                                        {/* Mobile Source */}
                                         {mobilepath && (
                                             <source
                                                 media="(max-width: 606px)"
-                                                srcSet={mobilepath}
+                                                srcset={mobilepath}
                                             />
                                         )}
-
-                                        {/* Desktop/Default Source */}
                                         <img
-                                            src={
-                                                imagepath || "/placeholder.jpg"
-                                            }
+                                            src={imagepath || "/placeholder.jpg"}
                                             alt={altText}
                                             width="1920"
                                             height="929"
-                                            loading={
-                                                index === 0 ? "eager" : "lazy"
-                                            }
-                                            fetchpriority={
-                                                index === 0 ? "high" : "low"
-                                            }
-                                            decoding={
-                                                index === 0 ? "sync" : "async"
-                                            }
+                                            /* OPTIMIZATION: Critical image attributes for LCP */
+                                            loading={isFirst ? "eager" : "lazy"}
+                                            fetchpriority={isFirst ? "high" : "low"}
+                                            decoding={isFirst ? "sync" : "async"}
                                         />
                                     </picture>
                                 </div>
@@ -152,12 +133,18 @@ const preloadMobile =
 </section>
 
 <style>
+    /* OPTIMIZATION: contain: layout prevents the slider from shifting other elements */
+    section.homeslider-sec {
+        position: relative;
+        contain: layout;
+    }
+
     .slider-image {
         aspect-ratio: 1920 / 929;
         height: auto;
         width: 100%;
         overflow: hidden;
-        background: #f0f0f0;
+        background: #f0f0f0; /* Visual placeholder while loading */
     }
 
     .slider-image img {
@@ -165,10 +152,6 @@ const preloadMobile =
         width: 100%;
         object-fit: cover;
         object-position: center;
-    }
-
-    section.homeslider-sec {
-        position: relative;
     }
 
     .content-main {
@@ -224,6 +207,7 @@ const preloadMobile =
 </style>
 
 <script is:inline>
+    // OPTIMIZATION: Initialize Swiper after the first frame to allow LCP image to paint first
     function initSwiper() {
         if (typeof Swiper !== "undefined") {
             requestAnimationFrame(() => {
@@ -234,12 +218,16 @@ const preloadMobile =
                     loop: true,
                     fadeEffect: { crossFade: true },
                     watchSlidesProgress: true,
-                    preloadImages: false,
+                    preloadImages: false, // Critical: don't let Swiper block the main thread
+                    lazy: true
                 });
             });
         } else {
             setTimeout(initSwiper, 50);
         }
     }
-    initSwiper();
+    
+    // Support both standard and Astro View Transitions
+    document.addEventListener("DOMContentLoaded", initSwiper);
+    document.addEventListener("astro:page-load", initSwiper);
 </script>

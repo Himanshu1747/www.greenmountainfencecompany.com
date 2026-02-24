@@ -42,7 +42,8 @@ query MainMenu {
 `;
 
 const data = await queryWordPress(QUERY_MENU);
-const logo = data?.siteLogo?.sourceUrl;
+const logoData = data?.siteLogo;
+const logo = logoData?.sourceUrl;
 const rawNodes = data?.menu?.menuItems?.nodes || [];
 const topFooterHtml = data?.topFooterWidget;
 
@@ -51,18 +52,17 @@ const menuItems = rawNodes
     .sort((a, b) => (a.order || 0) - (b.order || 0))
     .map((item) => ({
         ...item,
-        // Using original URL/URI from backend directly
         relativeUri: item.uri || item.url,
         children: (item.childItems?.nodes || [])
             .sort((a, b) => (a.order || 0) - (b.order || 0))
             .map((child) => ({
                 ...child,
-                // Using original URL/URI from backend directly
                 relativeUri: child.uri || child.url,
             })),
     }));
 ---
 
+{/* 1. Preload the Logo immediately for LCP speed */}
 {logo && <link rel="preload" as="image" href={logo} fetchpriority="high" />}
 
 <header class="custom-header">
@@ -98,11 +98,12 @@ const menuItems = rawNodes
                 <div class="grid-mobiles">
                     <div class="main_logo">
                         <HeaderLink href="/" title="Home">
+                            {/* 2. Added width/height and high priority attributes */}
                             <img
                                 src={logo}
-                                alt="Logo"
-                                width="200"
-                                height="77"
+                                alt={logoData?.altText || "Logo"}
+                                width={logoData?.mediaDetails?.width || "200"}
+                                height={logoData?.mediaDetails?.height || "77"}
                                 loading="eager"
                                 fetchpriority="high"
                                 decoding="sync"
@@ -149,13 +150,14 @@ const menuItems = rawNodes
 <div class="margin-top"></div>
 
 <style>
-    /* ... Your existing CSS Styles ... */
     header.custom-header {
         color: var(--color-white);
         position: fixed;
         width: 100%;
         top: 0;
         z-index: 111;
+        /* Performance hint for browser */
+        contain: layout;
     }
 
     .top-headers {
@@ -364,8 +366,8 @@ const menuItems = rawNodes
 </style>
 
 <script is:inline>
+    // Using jQuery as requested
     function setupNavigation() {
-        // Mobile menu toggle
         $(".menu-icon")
             .off("click")
             .on("click", function () {
@@ -373,7 +375,6 @@ const menuItems = rawNodes
                 $(".header-linksgrids").slideToggle();
             });
 
-        // Mobile submenu click handling
         if (window.innerWidth < 1200) {
             $(".sub-menu").hide();
             $(".menu-item-has-children")

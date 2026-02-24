@@ -1,6 +1,6 @@
 const wpCache = new Map();
 export async function queryWordPress(query, variables = {}) {
-  const endpoint = import.meta.env.WP_API_URL || "https://web.ogrelogicsolutions.com/greenmountainfencecompany.com/graphql";
+  const endpoint = import.meta.env.WP_API_URL || "https://admin.greenmountainfencecompany.com/graphql";
   const cacheKey = JSON.stringify({ query, variables });
   if (wpCache.has(cacheKey)) {
     return wpCache.get(cacheKey);
